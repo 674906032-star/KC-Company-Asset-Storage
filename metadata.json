@@ -1,0 +1,6 @@
+{
+  "name": "KC Enterprise Asset Registry",
+  "description": "ระบบบริหารจัดการทรัพย์สินและครุภัณฑ์องค์กร พร้อมระบบงานซ่อมบำรุงและระบบเบิก-อนุมัติ",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
