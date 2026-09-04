@@ -96,9 +96,32 @@ export default function App() {
     }
     addToast('success', 'เปลี่ยนผู้ดูแลครุภัณฑ์สำเร็จ', `ผู้ดูแลใหม่: ${newGmail}`);
   };
-  const [tickets, setTickets] = useState<MaintenanceTicket[]>(INITIAL_MAINTENANCE_TICKETS);
+
+  const [tickets, setTickets] = useState<MaintenanceTicket[]>(() => {
+    try {
+      localStorage.removeItem('kc_tickets');
+      const saved = localStorage.getItem('kc_tickets_v2');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch {
+      // fallback
+    }
+    return INITIAL_MAINTENANCE_TICKETS;
+  });
   const [pmRoutines, setPmRoutines] = useState<PMRoutineItem[]>(INITIAL_PM_ROUTINES);
-  const [approvals, setApprovals] = useState<ApprovalRequest[]>(INITIAL_APPROVALS);
+  const [approvals, setApprovals] = useState<ApprovalRequest[]>(() => {
+    try {
+      localStorage.removeItem('kc_approvals');
+      const saved = localStorage.getItem('kc_approvals_v2');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch {
+      // fallback
+    }
+    return INITIAL_APPROVALS;
+  });
   const [returnHistory, setReturnHistory] = useState<ReturnHistoryItem[]>(INITIAL_RETURN_HISTORY);
 
   // Modals state
@@ -135,8 +158,8 @@ export default function App() {
 
   // 1-Tap Quick Approve from Overview
   const handleApproveUrgent = (id: string) => {
-    setApprovals((prev) =>
-      prev.map((req) => {
+    setApprovals((prev) => {
+      const updated = prev.map((req) => {
         if (req.id === id) {
           const updatedChain = req.approvalChain.map((step) =>
             step.step === 2
@@ -146,15 +169,21 @@ export default function App() {
           return { ...req, status: 'approved', approvalChain: updatedChain };
         }
         return req;
-      })
-    );
+      });
+      try {
+        localStorage.setItem('kc_approvals_v2', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
     addToast('success', 'อนุมัติด่วนสำเร็จ (1-Tap)', `คำขอเบิก ${urgentApproval?.code || ''} ได้รับการอนุมัติแล้ว`);
   };
 
   // Signature modal confirm
   const handleConfirmSignature = (request: ApprovalRequest, signatureText: string) => {
-    setApprovals((prev) =>
-      prev.map((req) => {
+    setApprovals((prev) => {
+      const updated = prev.map((req) => {
         if (req.id === request.id) {
           const updatedChain = req.approvalChain.map((step) => {
             if (step.step === 2) {
@@ -168,29 +197,47 @@ export default function App() {
           return { ...req, status: 'approved', approvalChain: updatedChain };
         }
         return req;
-      })
-    );
+      });
+      try {
+        localStorage.setItem('kc_approvals_v2', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
     addToast('success', 'ลงนามอนุมัติเรียบร้อย', `คำขอ ${request.code} ถูกส่งต่อให้ รปภ. ตรวจปล่อย`);
   };
 
   // Reject Request
   const handleRejectRequest = (request: ApprovalRequest) => {
-    setApprovals((prev) =>
-      prev.map((req) => (req.id === request.id ? { ...req, status: 'rejected' } : req))
-    );
+    setApprovals((prev) => {
+      const updated = prev.map((req) => (req.id === request.id ? { ...req, status: 'rejected' } : req));
+      try {
+        localStorage.setItem('kc_approvals_v2', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
     addToast('error', 'ปฏิเสธคำขอเรียบร้อย', `คำขอ ${request.code} ถูกระงับ`);
   };
 
   // Maintenance: Accept Work
   const handleAcceptWork = (ticketId: string) => {
-    setTickets((prev) =>
-      prev.map((t) => {
+    setTickets((prev) => {
+      const updated = prev.map((t) => {
         if (t.id === ticketId) {
-          return { ...t, type: 'scheduled', typeLabel: 'ตรวจรับมอบเรียบร้อย', status: 'completed' };
+          return { ...t, type: 'scheduled', typeLabel: 'ตรวจรับมอบเรียบร้อย', status: 'completed' as const };
         }
         return t;
-      })
-    );
+      });
+      try {
+        localStorage.setItem('kc_tickets_v2', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
     addToast('success', 'ตรวจรับงานเรียบร้อย', 'งานซ่อมบำรุงผ่านการตรวจรับและบันทึกยอดเบิกจ่ายแล้ว');
   };
 
@@ -225,13 +272,29 @@ export default function App() {
 
   // Add new ticket
   const handleAddTicket = (newTicket: MaintenanceTicket) => {
-    setTickets((prev) => [newTicket, ...prev]);
+    setTickets((prev) => {
+      const updated = [newTicket, ...prev];
+      try {
+        localStorage.setItem('kc_tickets_v2', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
     addToast('success', 'เปิดใบแจ้งซ่อมสำเร็จ', `ตั๋วเลขที่ ${newTicket.code} เข้าสู่คิวซ่อมบำรุงแล้ว`);
   };
 
   // Add new express approval
   const handleAddApproval = (newReq: ApprovalRequest) => {
-    setApprovals((prev) => [newReq, ...prev]);
+    setApprovals((prev) => {
+      const updated = [newReq, ...prev];
+      try {
+        localStorage.setItem('kc_approvals_v2', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
     addToast('success', 'ส่งคำขอเบิกด่วนแล้ว', `คำขอ ${newReq.code} ถูกจัดส่งเข้าระบบพิจารณา`);
   };
 
@@ -251,7 +314,7 @@ export default function App() {
         {/* App Header */}
         <Header
           activeTab={activeTab}
-          unreadNotificationsCount={3}
+          unreadNotificationsCount={pendingApprovalsCount}
           onOpenNotifications={() => setIsNotificationOpen(true)}
           onOpenProfile={() => setIsProfileOpen(true)}
           adminProfile={adminProfile}
@@ -262,6 +325,7 @@ export default function App() {
           {activeTab === 'overview' && (
             <OverviewView
               assets={assets}
+              tickets={tickets}
               onNavigateTab={(tab) => setActiveTab(tab)}
               onOpenScanner={() => setIsScannerOpen(true)}
               onOpenExpressRequest={() => setIsExpressOpen(true)}

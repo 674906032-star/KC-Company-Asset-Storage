@@ -14,10 +14,11 @@ import {
   Wind,
   FileText,
 } from 'lucide-react';
-import { TabType, ApprovalRequest, AdminProfile, Asset } from '../types';
+import { TabType, ApprovalRequest, AdminProfile, Asset, MaintenanceTicket } from '../types';
 
 interface OverviewViewProps {
   assets?: Asset[];
+  tickets?: MaintenanceTicket[];
   onNavigateTab: (tab: TabType) => void;
   onOpenScanner: () => void;
   onOpenExpressRequest: () => void;
@@ -31,6 +32,7 @@ interface OverviewViewProps {
 
 export const OverviewView: React.FC<OverviewViewProps> = ({
   assets = [],
+  tickets = [],
   onNavigateTab,
   onOpenScanner,
   onOpenExpressRequest,
@@ -44,7 +46,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
   const totalAssetsCount = assets.length;
   const availableCount = assets.filter((a) => a.status === 'available').length;
   const checkedOutCount = assets.filter((a) => a.status === 'checked_out').length;
-  const maintenanceCount = assets.filter((a) => a.status === 'maintenance').length;
+  const maintenanceCount = tickets.length > 0 ? tickets.length : assets.filter((a) => a.status === 'maintenance').length;
   const totalValuation = assets.reduce((sum, a) => sum + (a.price || 0), 0);
   const availablePercent = totalAssetsCount > 0 ? ((availableCount / totalAssetsCount) * 100).toFixed(1) : '0';
   return (
@@ -148,7 +150,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
           <div>
             <div className="flex items-center gap-1.5">
               <h4 className="text-xs font-bold text-[#00236f]">
-                ฟอร์เม็ตและแบบฟอร์มมาตรฐาน
+                Format และแบบฟอร์มมาตรฐาน
               </h4>
               <span className="px-1.5 py-0.2 rounded bg-[#dcfce7] text-[#16a34a] text-[9px] font-extrabold">
                 คภ.01 - 05

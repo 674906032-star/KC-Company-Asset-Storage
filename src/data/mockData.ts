@@ -8,54 +8,7 @@ import {
 
 export const INITIAL_ASSETS: Asset[] = [];
 
-export const INITIAL_MAINTENANCE_TICKETS: MaintenanceTicket[] = [
-  {
-    id: 'rep-1',
-    code: 'REP-2024-082',
-    type: 'corrective',
-    typeLabel: 'ซ่อมด่วน (Corrective)',
-    title: 'เครื่องพิมพ์ Laser Multifunction',
-    issueDescription: 'กระดาษติดบ่อย / Roller ยางหมดสภาพ',
-    assetCode: 'KC-PRN-2023-0015',
-    contractor: 'บจก. ไอที เซอร์วิส โซลูชั่น',
-    estimatedCost: 2850,
-    timeAgo: 'วันนี้ 10:45',
-    dateStr: '24 ต.ค. 67',
-    imageUrl: 'https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=600&q=80',
-    status: 'in_progress',
-  },
-  {
-    id: 'rep-2',
-    code: 'REP-2024-079',
-    type: 'pending_inspection',
-    typeLabel: 'ซ่อมเสร็จ รอตรวจรับ',
-    title: 'รถยนต์กระบะบริษัท KC-02',
-    issueDescription: 'ตรวจเช็คระยะ 60,000 กม. / เบรกและช่วงล่าง',
-    assetCode: 'KC-VEH-2021-0004',
-    contractor: 'ศูนย์บริการโตโยต้า สำนักงานใหญ่',
-    actualCost: 12400,
-    timeAgo: 'เมื่อวาน',
-    dateStr: '23 ต.ค. 67',
-    imageUrl: 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=600&q=80',
-    status: 'ready_for_review',
-  },
-  {
-    id: 'rep-3',
-    code: 'REP-2024-075',
-    type: 'scheduled',
-    typeLabel: 'รอช่างเข้าซ่อม',
-    title: 'จอ Interactive Display 75"',
-    issueDescription: 'หน้าจอสัมผัสไม่ตอบสนองมุมซ้ายล่าง (ห้องประชุม 1)',
-    assetCode: 'KC-DIS-2023-0012',
-    contractor: 'ศูนย์บริการ Maxhub Onsite Care',
-    requester: 'ฝ่ายเลขานุการผู้บริหาร',
-    warrantyStatus: 'อยู่ในประกัน Onsite',
-    timeAgo: '14 ก.พ.',
-    dateStr: '14 ก.พ. 67',
-    imageUrl: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=80',
-    status: 'awaiting_tech',
-  },
-];
+export const INITIAL_MAINTENANCE_TICKETS: MaintenanceTicket[] = [];
 
 export const INITIAL_PM_ROUTINES: PMRoutineItem[] = [
   {
@@ -84,190 +37,17 @@ export const INITIAL_PM_ROUTINES: PMRoutineItem[] = [
   },
 ];
 
-export const INITIAL_APPROVALS: ApprovalRequest[] = [
-  {
-    id: 'app-1',
-    code: 'REQ-OUT-2024-104',
-    urgency: 'urgent',
-    urgencyLabel: 'ด่วนพิเศษ',
-    timeAgo: 'ยื่นคำขอเมื่อ 18 นาทีที่แล้ว',
-    requester: {
-      name: 'คุณสิริพร นิลภักดี',
-      role: 'ผู้ผลิตสื่อ & มัลติมีเดีย',
-      department: 'ฝ่ายการตลาด',
-      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80',
-      phone: '081-456-7890',
-    },
-    period: {
-      start: '25 ต.ค. (09:00)',
-      end: '28 ต.ค. 2567 (18:00)',
-      durationText: 'รวม 3 วัน 9 ชั่วโมง',
-    },
-    purpose: 'งาน KC Green Logistics Expo 2024',
-    location: 'ศูนย์การประชุมแห่งชาติสิริกิติ์ (QSNCC) • บันทึกวิดีโอ & สัมภาษณ์บูธผู้บริหาร',
-    items: [
-      {
-        code: 'CAM-0042',
-        name: 'Sony FX3 Cinema Line',
-        condition: 'สภาพสมบูรณ์ 100%',
-        imageUrl: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=400&q=80',
-        quantity: '1 ชุด',
-      },
-      {
-        code: 'LGT-0118',
-        name: 'โคมไฟ Aputure 300d II',
-        condition: 'พร้อมกล่อง Softbox',
-        imageUrl: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=400&q=80',
-        quantity: '1 ชุด',
-      },
-    ],
-    totalValue: 248500,
-    approvalChain: [
-      { step: 1, role: 'หัวหน้าแผนก', status: 'approved', label: 'อนุมัติแล้ว', actorName: 'คุณกิตติศักดิ์ ผอ.ฝ่ายการตลาด' },
-      { step: 2, role: 'ผู้ดูแลทรัพย์สิน', status: 'pending', label: 'รอคุณอนุมัติ', actorName: 'คุณภัสสร (คุณ)' },
-      { step: 3, role: 'รปภ. ประตู 1', status: 'upcoming', label: 'ตรวจปล่อย' },
-    ],
-    status: 'pending',
-  },
-  {
-    id: 'app-2',
-    code: 'REQ-OUT-2024-105',
-    urgency: 'normal',
-    urgencyLabel: 'ทั่วไป',
-    timeAgo: 'ยื่นเมื่อ 1 ชม.ที่แล้ว',
-    requester: {
-      name: 'นายปวริศร์ กิตติโสภณ',
-      role: 'เจ้าหน้าที่อาวุโส',
-      department: 'ฝ่ายพัฒนาธุรกิจ (BD) • เจรจางานประมูลภาครัฐ',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
-      phone: '089-112-3344',
-    },
-    period: {
-      start: '24 ต.ค. (13:00)',
-      end: '26 ต.ค. 67 (17:00)',
-      durationText: 'รวม 2 วัน 4 ชั่วโมง',
-    },
-    purpose: 'นำเสนอโครงการพัฒนาระบบโลจิสติกส์ภาครัฐ ณ ทำเนียบรัฐบาล',
-    location: 'ทำเนียบรัฐบาล กรุงเทพฯ',
-    items: [
-      {
-        code: 'KC-IT-2024-883',
-        name: 'MacBook Pro 16" M3 Max (36GB/1TB)',
-        condition: 'เครื่องหลักสำหรับพรีเซนต์',
-        imageUrl: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=400&q=80',
-        quantity: '1 เครื่อง',
-      },
-    ],
-    totalValue: 98420,
-    approvalChain: [
-      { step: 1, role: 'หัวหน้าแผนก', status: 'approved', label: 'อนุมัติแล้ว' },
-      { step: 2, role: 'ผู้ดูแลทรัพย์สิน', status: 'pending', label: 'รอคุณอนุมัติ' },
-      { step: 3, role: 'รปภ. ประตู 1', status: 'upcoming', label: 'ตรวจปล่อย' },
-    ],
-    status: 'pending',
-    returnDeadline: '26 ต.ค. 67 (17:00)',
-  },
-  {
-    id: 'app-3',
-    code: 'REQ-OUT-2024-098',
-    urgency: 'normal',
-    urgencyLabel: 'ทั่วไป',
-    timeAgo: 'ยื่นเมื่อวาน 15:30',
-    requester: {
-      name: 'นายธีรภัทร ชาญวิทย์',
-      role: 'Lead Mobile Dev',
-      department: 'ฝ่ายเทคโนโลยีสารสนเทศ',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80',
-      phone: '085-789-1234',
-    },
-    period: {
-      start: '25 ต.ค. (08:00)',
-      end: '08 พ.ย. 67 (18:00)',
-      durationText: 'รวม 14 วัน',
-    },
-    purpose: 'คอมไพล์โปรเจกต์ iOS ประจำไตรมาส',
-    location: 'แผนก Dev ชั้น 5 / WFH',
-    items: [
-      {
-        code: 'KC-NB-2024-0089',
-        name: 'MacBook Pro 16" M3 Max',
-        condition: 'สภาพสมบูรณ์',
-        imageUrl: 'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&w=400&q=80',
-        quantity: '1 เครื่อง',
-      },
-    ],
-    totalValue: 98420,
-    approvalChain: [
-      { step: 1, role: 'หัวหน้าแผนก', status: 'approved', label: 'อนุมัติแล้ว' },
-      { step: 2, role: 'ผู้ดูแลทรัพย์สิน', status: 'pending', label: 'รอคุณอนุมัติ' },
-      { step: 3, role: 'รปภ. ประตู 1', status: 'upcoming', label: 'ตรวจปล่อย' },
-    ],
-    status: 'pending',
-    returnDeadline: '08 พ.ย. 67 (18:00)',
-  },
-];
+export const INITIAL_APPROVALS: ApprovalRequest[] = [];
 
-export const INITIAL_RETURN_HISTORY: ReturnHistoryItem[] = [
-  {
-    id: 'ret-1',
-    code: 'REQ-RET-2024-089',
-    badge: 'ตรวจรับ 100%',
-    title: 'โดรนสำรวจ DJI Mavic 3 Pro',
-    returnedBy: 'คุณกานต์ พิมานรัตน์',
-    recordedAt: 'บันทึกเมื่อวานนี้ 17:42 น.',
-    checkpoint: 'จุดตรวจโกดัง A',
-  },
-  {
-    id: 'ret-2',
-    code: 'REQ-RET-2024-088',
-    badge: 'ตรวจรับ 100%',
-    title: 'กล้อง Sony A7 IV + เลนส์ 24-70 GM',
-    returnedBy: 'คุณสิริพร นิลภักดี',
-    recordedAt: '22 ต.ค. 67 16:15 น.',
-    checkpoint: 'จุดตรวจสตูดิโอ ชั้น 3',
-  },
-  {
-    id: 'ret-3',
-    code: 'REQ-RET-2024-087',
-    badge: 'ตรวจรับ 95%',
-    title: 'เครื่องวัดสัญญาณเครือข่าย Fluke Networks',
-    returnedBy: 'นายสมชาย วิศวกรรมระบบ',
-    recordedAt: '20 ต.ค. 67 11:30 น.',
-    checkpoint: 'คลังพัสดุไอที',
-  },
-];
+export const INITIAL_RETURN_HISTORY: ReturnHistoryItem[] = [];
 
 export const NOTIFICATIONS = [
   {
-    id: 'n-1',
-    title: 'คำขอเบิกด่วนใหม่ REQ-OUT-2024-104',
-    description: 'คุณสิริพร นิลภักดี ขอเบิก Sony FX3 และ Aputure 300d II งาน QSNCC',
-    time: '18 นาทีที่แล้ว',
-    unread: true,
-    type: 'approval',
-  },
-  {
-    id: 'n-2',
-    title: 'ใบแจ้งซ่อมถูกเปิด REP-2024-082',
-    description: 'เครื่องพิมพ์ Laser Multifunction กระดาษติดบ่อย แผนกบัญชี',
-    time: '45 นาทีที่แล้ว',
-    unread: true,
-    type: 'maintenance',
-  },
-  {
-    id: 'n-3',
-    title: 'ครบกำหนดตรวจสภาพ PM วันนี้',
-    description: 'รถตู้ส่วนกลาง Toyota Commuter เช็คระยะรอบ 40,000 กม.',
-    time: '2 ชม. ที่แล้ว',
-    unread: true,
-    type: 'pm',
-  },
-  {
-    id: 'n-4',
-    title: 'ตรวจรับทรัพย์สินคืนเสร็จสิ้น',
-    description: 'โดรนสำรวจ DJI Mavic 3 Pro ถูกตรวจรับ 100% เรียบร้อยแล้ว',
-    time: 'เมื่อวาน',
+    id: 'n-ready',
+    title: 'ระบบพร้อมใช้งาน',
+    description: 'ฐานข้อมูลคำขอเบิก ครุภัณฑ์ และแจ้งซ่อม ได้รับการล้างข้อมูลพร้อมสำหรับบันทึกรายการใหม่',
+    time: 'เมื่อสักครู่',
     unread: false,
-    type: 'return',
+    type: 'approval',
   },
 ];

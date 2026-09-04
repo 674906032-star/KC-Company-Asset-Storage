@@ -41,6 +41,14 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'latest' | 'cost'>('latest');
 
+  const inProgressCount = tickets.filter(
+    (t) => t.status === 'in_progress' || t.type === 'corrective'
+  ).length;
+  const inspectionCount = tickets.filter(
+    (t) => t.type === 'pending_inspection' || t.status === 'ready_for_review'
+  ).length;
+  const pmDueCount = pmRoutines.length;
+
   const filteredTickets = tickets.filter((t) => {
     const q = searchQuery.toLowerCase().trim();
     if (!q) return true;
@@ -91,7 +99,7 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
           <Calendar className="w-3.5 h-3.5" />
           <span>แผนตรวจเช็ค (PM)</span>
           <span className="px-1.5 py-0.2 rounded-full bg-[#e2e7ff] text-[#00236f] text-[10px]">
-            {pmRoutines.length + 6}
+            {pmRoutines.length}
           </span>
         </button>
 
@@ -108,14 +116,14 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
           <Wrench className="w-3.5 h-3.5" />
           <span>แจ้งซ่อม / ประวัติ (Tickets)</span>
           <span className="px-1.5 py-0.2 rounded-full bg-[#fee2e2] text-[#dc2626] text-[10px]">
-            {tickets.length + 11}
+            {tickets.length}
           </span>
         </button>
       </div>
 
       {/* 3. 3 Stat KPI Cards */}
       <div className="grid grid-cols-3 gap-2">
-        {/* Stat 1: 14 กำลังดำเนินการซ่อม */}
+        {/* Stat 1: กำลังดำเนินการซ่อม */}
         <div className="bg-white p-2.5 rounded-2xl border border-[#e2e7ff] shadow-xs">
           <div className="flex items-center justify-between">
             <div className="w-6 h-6 rounded-lg bg-[#fee2e2] flex items-center justify-center text-[#dc2626]">
@@ -124,14 +132,14 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
             <span className="text-[10px] font-bold text-[#dc2626]">ด่วน</span>
           </div>
           <div className="mt-1">
-            <span className="text-xl font-black text-[#131b2e]">14</span>
+            <span className="text-xl font-black text-[#131b2e]">{inProgressCount}</span>
           </div>
           <p className="text-[10px] text-[#757682] mt-0.5 truncate">
             กำลังดำเนินการซ่อม
           </p>
         </div>
 
-        {/* Stat 2: 5 รอตรวจรับมอบงาน */}
+        {/* Stat 2: รอตรวจรับมอบงาน */}
         <div className="bg-white p-2.5 rounded-2xl border border-[#e2e7ff] shadow-xs">
           <div className="flex items-center justify-between">
             <div className="w-6 h-6 rounded-lg bg-[#dcfce7] flex items-center justify-center text-[#006a61]">
@@ -142,14 +150,14 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
             </span>
           </div>
           <div className="mt-1">
-            <span className="text-xl font-black text-[#131b2e]">5</span>
+            <span className="text-xl font-black text-[#131b2e]">{inspectionCount}</span>
           </div>
           <p className="text-[10px] text-[#757682] mt-0.5 truncate">
             รอตรวจรับมอบงาน
           </p>
         </div>
 
-        {/* Stat 3: 8 ถึงรอบตรวจ */}
+        {/* Stat 3: ถึงรอบตรวจ */}
         <div className="bg-white p-2.5 rounded-2xl border border-[#e2e7ff] shadow-xs">
           <div className="flex items-center justify-between">
             <div className="w-6 h-6 rounded-lg bg-[#eaedff] flex items-center justify-center text-[#00236f]">
@@ -157,7 +165,7 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
             </div>
           </div>
           <div className="mt-1">
-            <span className="text-xl font-black text-[#131b2e]">8</span>
+            <span className="text-xl font-black text-[#131b2e]">{pmDueCount}</span>
           </div>
           <p className="text-[10px] text-[#757682] mt-0.5 truncate">
             ถึงรอบตรวจ
@@ -459,6 +467,36 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
             </div>
           </div>
         ))}
+
+        {filteredTickets.length === 0 && (
+          <div className="text-center py-12 px-4 bg-white rounded-2xl border border-dashed border-[#b6c4ff] space-y-3">
+            <div className="w-14 h-14 mx-auto rounded-full bg-[#f2f3ff] text-[#006a61] flex items-center justify-center">
+              <Wrench className="w-7 h-7" />
+            </div>
+            {tickets.length === 0 ? (
+              <div className="space-y-1.5 max-w-xs mx-auto">
+                <h4 className="text-sm font-bold text-[#131b2e]">
+                  พร้อมเปิดใบแจ้งซ่อมรายการใหม่
+                </h4>
+                <p className="text-xs text-[#565e74] leading-relaxed">
+                  ลบรายการแจ้งซ่อมเดิมทั้งหมดออกเรียบร้อยแล้ว กดปุ่มด้านล่างเพื่อเปิดใบแจ้งซ่อมครุภัณฑ์รายการใหม่ได้ทันที
+                </p>
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={onOpenCreateTicket}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#006a61] text-white text-xs font-bold hover:bg-[#005049] shadow-xs active:scale-95 transition-all"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>เปิดใบแจ้งซ่อมใหม่</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-[#757682]">ไม่พบรายการแจ้งซ่อมที่ค้นหา</p>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Bottom Floating Action Button */}

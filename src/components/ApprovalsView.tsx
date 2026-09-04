@@ -41,6 +41,7 @@ export const ApprovalsView: React.FC<ApprovalsViewProps> = ({
   const pendingApprovals = approvals.filter((a) => a.status === 'pending');
   const urgentRequest = pendingApprovals.find((a) => a.urgency === 'urgent') || pendingApprovals[0];
   const otherPending = pendingApprovals.filter((a) => a.id !== urgentRequest?.id);
+  const activeApprovals = approvals.filter((a) => a.status === 'approved');
 
   return (
     <div className="space-y-3.5 pb-28">
@@ -75,7 +76,7 @@ export const ApprovalsView: React.FC<ApprovalsViewProps> = ({
           }`}
         >
           <span>กำลังใช้งาน</span>
-          <span className="text-[11px] text-[#757682] font-semibold">38</span>
+          <span className="text-[11px] text-[#757682] font-semibold">{activeApprovals.length}</span>
         </button>
 
         <button
@@ -328,225 +329,241 @@ export const ApprovalsView: React.FC<ApprovalsViewProps> = ({
               </div>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl p-6 text-center border border-[#e2e7ff]">
-              <CheckCircle2 className="w-8 h-8 text-[#16a34a] mx-auto mb-2" />
+            <div className="bg-white rounded-2xl p-8 text-center border border-[#e2e7ff] shadow-xs">
+              <div className="w-12 h-12 rounded-2xl bg-[#eaedff] text-[#00236f] flex items-center justify-center mx-auto mb-3">
+                <CheckCircle2 className="w-6 h-6 text-[#00236f]" />
+              </div>
               <p className="text-sm font-bold text-[#131b2e]">
                 ไม่มีคำขอเบิกที่ค้างพิจารณา
               </p>
-              <p className="text-xs text-[#757682] mt-1">
-                คุณได้จัดการคำขออนุมัติทั้งหมดเรียบร้อยแล้ว
+              <p className="text-xs text-[#757682] mt-1 max-w-xs mx-auto">
+                คำขอเบิกเดิมถูกล้างข้อมูลเรียบร้อยแล้ว คุณสามารถส่งคำขอเบิกครุภัณฑ์รายการใหม่ได้ทันที
               </p>
             </div>
           )}
 
           {/* 4. Other Pending Approvals Section */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-[#131b2e]">
-                รายการรอตรวจสอบอื่น ๆ
-              </h3>
-              <span className="text-[11px] text-[#757682]">
-                ลำดับคิว 2 จาก 3
-              </span>
-            </div>
+          {otherPending.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-bold text-[#131b2e]">
+                  รายการรอตรวจสอบอื่น ๆ
+                </h3>
+                <span className="text-[11px] text-[#757682]">
+                  {otherPending.length} รายการ
+                </span>
+              </div>
 
-            {otherPending.map((req) => (
-              <div
-                key={req.id}
-                id={`pending-other-${req.code}`}
-                onClick={() => onSelectApprovalDetail(req)}
-                className="bg-white rounded-2xl p-3.5 border border-[#e2e7ff] shadow-xs cursor-pointer hover:border-[#00236f] transition-all"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold text-[#131b2e]">
-                      {req.code}
-                    </span>
-                    <span className="px-2 py-0.5 rounded-full bg-[#eaedff] text-[#00236f] text-[10px] font-bold">
-                      {req.urgencyLabel}
-                    </span>
-                  </div>
-                  <span className="text-[11px] text-[#757682]">{req.timeAgo}</span>
-                </div>
-
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-[#86f2e4] text-[#004f47] flex items-center justify-center font-bold text-xs shrink-0">
-                    {req.requester.name.slice(0, 2)}
-                  </div>
-                  <div className="min-w-0">
-                    <h5 className="text-xs font-bold text-[#131b2e] truncate">
-                      {req.requester.name}
-                    </h5>
-                    <p className="text-[11px] text-[#757682] truncate">
-                      {req.requester.department}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="bg-[#f2f3ff] rounded-xl p-2 mt-2.5 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Laptop className="w-4 h-4 text-[#00236f] shrink-0" />
-                    <div className="truncate">
-                      <span className="font-bold text-[#131b2e] truncate block text-xs">
-                        {req.items[0]?.name}
+              {otherPending.map((req) => (
+                <div
+                  key={req.id}
+                  id={`pending-other-${req.code}`}
+                  onClick={() => onSelectApprovalDetail(req)}
+                  className="bg-white rounded-2xl p-3.5 border border-[#e2e7ff] shadow-xs cursor-pointer hover:border-[#00236f] transition-all"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs font-bold text-[#131b2e]">
+                        {req.code}
                       </span>
-                      <span className="text-[10px] text-[#757682] font-mono">
-                        รหัสครุภัณฑ์: {req.items[0]?.code}
+                      <span className="px-2 py-0.5 rounded-full bg-[#eaedff] text-[#00236f] text-[10px] font-bold">
+                        {req.urgencyLabel}
                       </span>
                     </div>
+                    <span className="text-[11px] text-[#757682]">{req.timeAgo}</span>
                   </div>
-                  <span className="px-2 py-0.5 rounded-md bg-white text-[#00236f] text-[10px] font-bold shrink-0 ml-2">
-                    {req.items[0]?.quantity || '1 เครื่อง'}
-                  </span>
-                </div>
 
-                <div className="flex items-center justify-between mt-2.5 text-xs text-[#757682]">
-                  <span className="text-[11px]">
-                    กำหนดส่งคืน: {req.returnDeadline || '26 ต.ค. 67 (17:00)'}
-                  </span>
-                  <span className="text-[#00236f] font-bold flex items-center">
-                    ตรวจสอบ <ChevronRight className="w-3 h-3" />
-                  </span>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-[#86f2e4] text-[#004f47] flex items-center justify-center font-bold text-xs shrink-0">
+                      {req.requester.name.slice(0, 2)}
+                    </div>
+                    <div className="min-w-0">
+                      <h5 className="text-xs font-bold text-[#131b2e] truncate">
+                        {req.requester.name}
+                      </h5>
+                      <p className="text-[11px] text-[#757682] truncate">
+                        {req.requester.department}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#f2f3ff] rounded-xl p-2 mt-2.5 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Laptop className="w-4 h-4 text-[#00236f] shrink-0" />
+                      <div className="truncate">
+                        <span className="font-bold text-[#131b2e] truncate block text-xs">
+                          {req.items[0]?.name}
+                        </span>
+                        <span className="text-[10px] text-[#757682] font-mono">
+                          รหัสครุภัณฑ์: {req.items[0]?.code}
+                        </span>
+                      </div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-md bg-white text-[#00236f] text-[10px] font-bold shrink-0 ml-2">
+                      {req.items[0]?.quantity || '1 เครื่อง'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between mt-2.5 text-xs text-[#757682]">
+                    <span className="text-[11px]">
+                      กำหนดส่งคืน: {req.returnDeadline || 'ตามกำหนด'}
+                    </span>
+                    <span className="text-[#00236f] font-bold flex items-center">
+                      ตรวจสอบ <ChevronRight className="w-3 h-3" />
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* 5. Recent Return History Section */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-[#16a34a]" />
-                <h3 className="text-xs font-bold text-[#131b2e]">
-                  ประวัติการคืนล่าสุด
-                </h3>
+          {returnHistory.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#16a34a]" />
+                  <h3 className="text-xs font-bold text-[#131b2e]">
+                    ประวัติการคืนล่าสุด
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('history')}
+                  className="text-xs text-[#00236f] font-semibold hover:underline"
+                >
+                  ดูทั้งหมด
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setActiveTab('history')}
-                className="text-xs text-[#00236f] font-semibold hover:underline"
-              >
-                ดูทั้งหมด
-              </button>
-            </div>
 
-            {returnHistory.map((ret) => (
-              <div
-                key={ret.id}
-                className="bg-white rounded-2xl p-3 border border-[#e2e7ff] shadow-xs flex items-center justify-between"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-xl bg-[#dcfce7] text-[#16a34a] flex items-center justify-center shrink-0">
-                    <RotateCcw className="w-4 h-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-mono text-xs font-bold text-[#131b2e]">
-                        {ret.code}
-                      </span>
-                      <span className="px-1.5 py-0.2 rounded-md bg-[#dcfce7] text-[#16a34a] text-[10px] font-bold">
-                        {ret.badge}
-                      </span>
+              {returnHistory.map((ret) => (
+                <div
+                  key={ret.id}
+                  className="bg-white rounded-2xl p-3 border border-[#e2e7ff] shadow-xs flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-xl bg-[#dcfce7] text-[#16a34a] flex items-center justify-center shrink-0">
+                      <RotateCcw className="w-4 h-4" />
                     </div>
-                    <p className="text-xs text-[#444651] truncate mt-0.5">
-                      {ret.title} • ส่งคืนโดย {ret.returnedBy}
-                    </p>
-                    <p className="text-[10px] text-[#757682] mt-0.5">
-                      {ret.recordedAt} • {ret.checkpoint}
-                    </p>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-mono text-xs font-bold text-[#131b2e]">
+                          {ret.code}
+                        </span>
+                        <span className="px-1.5 py-0.2 rounded-md bg-[#dcfce7] text-[#16a34a] text-[10px] font-bold">
+                          {ret.badge}
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#444651] truncate mt-0.5">
+                        {ret.title} • ส่งคืนโดย {ret.returnedBy}
+                      </p>
+                      <p className="text-[10px] text-[#757682] mt-0.5">
+                        {ret.recordedAt} • {ret.checkpoint}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="w-5 h-5 rounded-full bg-[#dcfce7] text-[#16a34a] flex items-center justify-center shrink-0 ml-2">
+                    <Check className="w-3 h-3 stroke-[3]" />
                   </div>
                 </div>
-
-                <div className="w-5 h-5 rounded-full bg-[#dcfce7] text-[#16a34a] flex items-center justify-center shrink-0 ml-2">
-                  <Check className="w-3 h-3 stroke-[3]" />
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </>
       ) : activeTab === 'active' ? (
         /* Active Checked Out Items */
         <div className="space-y-3">
           <div className="bg-white rounded-2xl p-4 border border-[#e2e7ff]">
             <h3 className="text-sm font-bold text-[#131b2e] mb-1">
-              ทรัพย์สินที่กำลังเบิกใช้งาน (38 รายการ)
+              ทรัพย์สินที่กำลังเบิกใช้งาน ({activeApprovals.length} รายการ)
             </h3>
             <p className="text-xs text-[#757682]">
               ติดตามสถานะการนำทรัพย์สินออกนอกสถานที่และกำหนดส่งคืน
             </p>
           </div>
 
-          <div className="space-y-2">
-            <div className="bg-white rounded-2xl p-3 border border-[#e2e7ff] shadow-xs flex items-center justify-between">
-              <div>
-                <span className="font-mono text-xs font-bold text-[#006a61]">
-                  KC-NB-2024-0012
-                </span>
-                <h4 className="text-xs font-bold text-[#131b2e]">
-                  MacBook Pro 16" M3 Max
-                </h4>
-                <p className="text-[11px] text-[#757682]">
-                  ผู้ถือครอง: คุณสิริพร นิลภักดี (ฝ่ายการตลาด)
-                </p>
-              </div>
-              <span className="px-2 py-0.5 rounded-full bg-[#ffedd5] text-[#c2410c] text-[10px] font-bold">
-                ครบกำหนด 28 ต.ค.
-              </span>
+          {activeApprovals.length > 0 ? (
+            <div className="space-y-2">
+              {activeApprovals.map((req) => (
+                <div
+                  key={req.id}
+                  className="bg-white rounded-2xl p-3 border border-[#e2e7ff] shadow-xs flex items-center justify-between"
+                >
+                  <div>
+                    <span className="font-mono text-xs font-bold text-[#006a61]">
+                      {req.items[0]?.code || req.code}
+                    </span>
+                    <h4 className="text-xs font-bold text-[#131b2e]">
+                      {req.items[0]?.name || 'ครุภัณฑ์'}
+                    </h4>
+                    <p className="text-[11px] text-[#757682]">
+                      ผู้ถือครอง: {req.requester.name} ({req.requester.department})
+                    </p>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full bg-[#ffedd5] text-[#c2410c] text-[10px] font-bold">
+                    {req.period?.end ? `ครบกำหนด ${req.period.end}` : 'กำลังใช้งาน'}
+                  </span>
+                </div>
+              ))}
             </div>
-
-            <div className="bg-white rounded-2xl p-3 border border-[#e2e7ff] shadow-xs flex items-center justify-between">
-              <div>
-                <span className="font-mono text-xs font-bold text-[#006a61]">
-                  KC-CAM-2023-0045
-                </span>
-                <h4 className="text-xs font-bold text-[#131b2e]">
-                  Sony FX3 Cinema Line
-                </h4>
-                <p className="text-[11px] text-[#757682]">
-                  ผู้ถือครอง: คุณสิริพร นิลภักดี
-                </p>
-              </div>
-              <span className="px-2 py-0.5 rounded-full bg-[#ffedd5] text-[#c2410c] text-[10px] font-bold">
-                ครบกำหนด 28 ต.ค.
-              </span>
+          ) : (
+            <div className="bg-white rounded-2xl p-8 text-center border border-[#e2e7ff] shadow-xs">
+              <p className="text-xs font-bold text-[#131b2e]">
+                ไม่มีครุภัณฑ์ที่กำลังเบิกใช้งานในขณะนี้
+              </p>
+              <p className="text-[11px] text-[#757682] mt-1">
+                เมื่อมีการอนุมัติคำขอเบิก รายการจะแสดงที่นี่เพื่อติดตามสถานะการคืน
+              </p>
             </div>
-          </div>
+          )}
         </div>
       ) : (
         /* Return History Full Tab */
         <div className="space-y-2.5">
           <div className="bg-white rounded-2xl p-4 border border-[#e2e7ff]">
             <h3 className="text-sm font-bold text-[#131b2e] mb-1">
-              ประวัติการตรวจรับคืนครุภัณฑ์
+              ประวัติการตรวจรับคืนครุภัณฑ์ ({returnHistory.length} รายการ)
             </h3>
             <p className="text-xs text-[#757682]">
               รายการที่ผ่านการตรวจสภาพและรับคืนเข้าคลังสมบูรณ์
             </p>
           </div>
 
-          {returnHistory.map((ret) => (
-            <div
-              key={ret.id}
-              className="bg-white rounded-2xl p-3.5 border border-[#e2e7ff] shadow-xs"
-            >
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="font-mono text-xs font-bold text-[#00236f]">
-                  {ret.code}
-                </span>
-                <span className="px-2 py-0.5 rounded-full bg-[#dcfce7] text-[#16a34a] text-[10px] font-bold">
-                  {ret.badge}
-                </span>
+          {returnHistory.length > 0 ? (
+            returnHistory.map((ret) => (
+              <div
+                key={ret.id}
+                className="bg-white rounded-2xl p-3.5 border border-[#e2e7ff] shadow-xs"
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="font-mono text-xs font-bold text-[#00236f]">
+                    {ret.code}
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-[#dcfce7] text-[#16a34a] text-[10px] font-bold">
+                    {ret.badge}
+                  </span>
+                </div>
+                <h4 className="text-xs font-bold text-[#131b2e]">{ret.title}</h4>
+                <p className="text-xs text-[#444651] mt-0.5">
+                  ส่งคืนโดย: {ret.returnedBy}
+                </p>
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#f2f3ff] text-[11px] text-[#757682]">
+                  <span>{ret.recordedAt}</span>
+                  <span>{ret.checkpoint}</span>
+                </div>
               </div>
-              <h4 className="text-xs font-bold text-[#131b2e]">{ret.title}</h4>
-              <p className="text-xs text-[#444651] mt-0.5">
-                ส่งคืนโดย: {ret.returnedBy}
+            ))
+          ) : (
+            <div className="bg-white rounded-2xl p-8 text-center border border-[#e2e7ff] shadow-xs">
+              <p className="text-xs font-bold text-[#131b2e]">
+                ยังไม่มีประวัติการตรวจรับคืนครุภัณฑ์
               </p>
-              <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#f2f3ff] text-[11px] text-[#757682]">
-                <span>{ret.recordedAt}</span>
-                <span>{ret.checkpoint}</span>
-              </div>
+              <p className="text-[11px] text-[#757682] mt-1">
+                เมื่อมีการส่งคืนครุภัณฑ์และตรวจรับเข้าคลัง ประวัติจะแสดงที่นี่
+              </p>
             </div>
-          ))}
+          )}
         </div>
       )}
     </div>

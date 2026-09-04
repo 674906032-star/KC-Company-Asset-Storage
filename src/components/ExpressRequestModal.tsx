@@ -17,19 +17,26 @@ export const ExpressRequestModal: React.FC<ExpressRequestModalProps> = ({
 }) => {
   const availableAssets = assets.filter((a) => a.status === 'available');
   const [selectedAssetId, setSelectedAssetId] = useState(
-    availableAssets[0]?.id || assets[0]?.id || ''
+    availableAssets[0]?.id || assets[0]?.id || 'custom'
   );
-  const [requesterName, setRequesterName] = useState('คุณสิริพร นิลภักดี');
-  const [department, setDepartment] = useState('ฝ่ายการตลาด');
-  const [purpose, setPurpose] = useState('งานบันทึกวิดีโอสัมภาษณ์ผู้บริหารนอกสถานที่');
-  const [location, setLocation] = useState('โรงแรมสยามเคมปินสกี้ กรุงเทพฯ');
+  const [customAssetCode, setCustomAssetCode] = useState('');
+  const [customAssetName, setCustomAssetName] = useState('');
+  const [requesterName, setRequesterName] = useState('');
+  const [department, setDepartment] = useState('');
+  const [purpose, setPurpose] = useState('');
+  const [location, setLocation] = useState('');
   const [durationDays, setDurationDays] = useState('3');
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const asset = assets.find((a) => a.id === selectedAssetId) || assets[0];
+    const asset = assets.find((a) => a.id === selectedAssetId);
+
+    const finalCode = asset?.code || customAssetCode.trim() || `KC-REQ-${Date.now().toString().slice(-4)}`;
+    const finalName = asset?.name || customAssetName.trim() || 'อุปกรณ์ขอเบิก';
+    const finalImage = asset?.imageUrl || 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=400&q=80';
+    const finalPrice = asset?.price || 0;
 
     const newReq: ApprovalRequest = {
       id: `app-${Date.now()}`,
@@ -38,11 +45,11 @@ export const ExpressRequestModal: React.FC<ExpressRequestModalProps> = ({
       urgencyLabel: 'ด่วนพิเศษ',
       timeAgo: 'เมื่อสักครู่',
       requester: {
-        name: requesterName.trim() || 'คุณสิริพร นิลภักดี',
+        name: requesterName.trim() || 'ผู้ขอเบิก (พนักงาน)',
         role: 'เจ้าหน้าที่ผู้ขอเบิก',
-        department: department.trim() || 'ฝ่ายการตลาด',
-        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80',
-        phone: '081-456-7890',
+        department: department.trim() || 'ฝ่ายปฏิบัติการ',
+        avatar: '',
+        phone: '081-000-0000',
       },
       period: {
         start: 'วันนี้ (ทันที)',
@@ -53,14 +60,14 @@ export const ExpressRequestModal: React.FC<ExpressRequestModalProps> = ({
       location: location.trim() || 'กรุงเทพมหานคร',
       items: [
         {
-          code: asset.code,
-          name: asset.name,
+          code: finalCode,
+          name: finalName,
           condition: 'สภาพสมบูรณ์ 100%',
-          imageUrl: asset.imageUrl,
+          imageUrl: finalImage,
           quantity: '1 รายการ',
         },
       ],
-      totalValue: asset.price,
+      totalValue: finalPrice,
       approvalChain: [
         { step: 1, role: 'หัวหน้าแผนก', status: 'approved', label: 'อนุมัติแล้ว' },
         { step: 2, role: 'ผู้ดูแลทรัพย์สิน', status: 'pending', label: 'รอคุณอนุมัติ' },
@@ -100,22 +107,76 @@ export const ExpressRequestModal: React.FC<ExpressRequestModalProps> = ({
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-3.5 mt-4">
-          <div>
-            <label className="text-xs font-bold text-[#131b2e] block mb-1">
-              เลือกอุปกรณ์ที่ต้องการเบิก
-            </label>
-            <select
-              value={selectedAssetId}
-              onChange={(e) => setSelectedAssetId(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-[#e2e7ff] text-xs text-[#131b2e] bg-white focus:outline-none focus:ring-2 focus:ring-[#00236f]"
-            >
-              {assets.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.code} - {a.name} ({a.statusLabel})
-                </option>
-              ))}
-            </select>
-          </div>
+          {assets.length > 0 ? (
+            <div>
+              <label className="text-xs font-bold text-[#131b2e] block mb-1">
+                เลือกอุปกรณ์ที่ต้องการเบิก
+              </label>
+              <select
+                value={selectedAssetId}
+                onChange={(e) => setSelectedAssetId(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl border border-[#e2e7ff] text-xs text-[#131b2e] bg-white focus:outline-none focus:ring-2 focus:ring-[#00236f]"
+              >
+                {assets.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.code} - {a.name} ({a.statusLabel})
+                  </option>
+                ))}
+                <option value="custom">+ ระบุรหัสครุภัณฑ์อื่นด้วยตนเอง</option>
+              </select>
+
+              {selectedAssetId === 'custom' && (
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  <input
+                    type="text"
+                    placeholder="รหัสครุภัณฑ์ (เช่น KC-CAM-2024-001)"
+                    value={customAssetCode}
+                    onChange={(e) => setCustomAssetCode(e.target.value)}
+                    className="px-3 py-2 rounded-xl border border-[#e2e7ff] text-xs text-[#131b2e]"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="ชื่ออุปกรณ์ที่ขอเบิก"
+                    value={customAssetName}
+                    onChange={(e) => setCustomAssetName(e.target.value)}
+                    className="px-3 py-2 rounded-xl border border-[#e2e7ff] text-xs text-[#131b2e]"
+                    required
+                  />
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#131b2e] block">
+                ระบุข้อมูลครุภัณฑ์ที่ต้องการขอเบิก
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <span className="text-[10px] text-[#757682] block mb-0.5">รหัสครุภัณฑ์</span>
+                  <input
+                    type="text"
+                    placeholder="เช่น KC-NB-2024-001"
+                    value={customAssetCode}
+                    onChange={(e) => setCustomAssetCode(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-[#e2e7ff] text-xs text-[#131b2e] focus:outline-none focus:ring-2 focus:ring-[#00236f]"
+                    required
+                  />
+                </div>
+                <div>
+                  <span className="text-[10px] text-[#757682] block mb-0.5">ชื่ออุปกรณ์ / ครุภัณฑ์</span>
+                  <input
+                    type="text"
+                    placeholder="เช่น MacBook Pro 16"
+                    value={customAssetName}
+                    onChange={(e) => setCustomAssetName(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-[#e2e7ff] text-xs text-[#131b2e] focus:outline-none focus:ring-2 focus:ring-[#00236f]"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-2.5">
             <div>
@@ -124,6 +185,7 @@ export const ExpressRequestModal: React.FC<ExpressRequestModalProps> = ({
               </label>
               <input
                 type="text"
+                placeholder="ชื่อ-นามสกุล ผู้ขอเบิก"
                 value={requesterName}
                 onChange={(e) => setRequesterName(e.target.value)}
                 required
@@ -137,6 +199,7 @@ export const ExpressRequestModal: React.FC<ExpressRequestModalProps> = ({
               </label>
               <input
                 type="text"
+                placeholder="เช่น ฝ่ายการตลาด"
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl border border-[#e2e7ff] text-xs text-[#131b2e] focus:outline-none focus:ring-2 focus:ring-[#00236f]"
@@ -150,6 +213,7 @@ export const ExpressRequestModal: React.FC<ExpressRequestModalProps> = ({
             </label>
             <input
               type="text"
+              placeholder="เช่น งานถ่ายทำวิดีโอสัมภาษณ์ผู้บริหาร"
               value={purpose}
               onChange={(e) => setPurpose(e.target.value)}
               required
@@ -164,6 +228,7 @@ export const ExpressRequestModal: React.FC<ExpressRequestModalProps> = ({
               </label>
               <input
                 type="text"
+                placeholder="เช่น ศูนย์การประชุมฯ"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl border border-[#e2e7ff] text-xs text-[#131b2e] focus:outline-none focus:ring-2 focus:ring-[#00236f]"

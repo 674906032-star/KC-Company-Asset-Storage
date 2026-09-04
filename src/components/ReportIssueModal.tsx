@@ -15,7 +15,9 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
   assets,
   onAddTicket,
 }) => {
-  const [selectedAssetId, setSelectedAssetId] = useState(assets[0]?.id || '');
+  const [selectedAssetId, setSelectedAssetId] = useState(assets[0]?.id || 'custom');
+  const [customAssetCode, setCustomAssetCode] = useState('');
+  const [customAssetName, setCustomAssetName] = useState('');
   const [ticketType, setTicketType] = useState<MaintenanceTicketType>('corrective');
   const [title, setTitle] = useState('');
   const [issueDescription, setIssueDescription] = useState('');
@@ -26,7 +28,7 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const asset = assets.find((a) => a.id === selectedAssetId) || assets[0];
+    const asset = assets.find((a) => a.id === selectedAssetId);
 
     const typeLabels: Record<MaintenanceTicketType, string> = {
       corrective: 'ซ่อมด่วน (Corrective)',
@@ -34,19 +36,23 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
       scheduled: 'รอช่างเข้าซ่อม',
     };
 
+    const finalCode = asset?.code || customAssetCode.trim() || `KC-REP-${Date.now().toString().slice(-4)}`;
+    const finalName = title.trim() || asset?.name || customAssetName.trim() || 'อุปกรณ์แจ้งซ่อม';
+    const finalImage = asset?.imageUrl || 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80';
+
     const newTicket: MaintenanceTicket = {
       id: `rep-${Date.now()}`,
       code: `REP-2024-${Math.floor(100 + Math.random() * 900)}`,
       type: ticketType,
       typeLabel: typeLabels[ticketType],
-      title: title.trim() || asset.name,
+      title: finalName,
       issueDescription: issueDescription.trim() || 'แจ้งซ่อมอาการขัดข้องจากผู้ใช้งาน',
-      assetCode: asset.code,
+      assetCode: finalCode,
       contractor: contractor.trim() || 'ทีมช่างส่วนกลาง',
       estimatedCost: parseFloat(estimatedCost) || 0,
       timeAgo: 'เมื่อสักครู่',
       dateStr: 'วันนี้',
-      imageUrl: asset.imageUrl,
+      imageUrl: finalImage,
       status: 'in_progress',
     };
 
@@ -81,26 +87,80 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-3.5 mt-4">
-          <div>
-            <label className="text-xs font-bold text-[#131b2e] block mb-1">
-              เลือกทรัพย์สินที่ต้องซ่อม
-            </label>
-            <select
-              value={selectedAssetId}
-              onChange={(e) => {
-                setSelectedAssetId(e.target.value);
-                const a = assets.find((x) => x.id === e.target.value);
-                if (a) setTitle(a.name);
-              }}
-              className="w-full px-3 py-2 rounded-xl border border-[#e2e7ff] text-xs text-[#131b2e] bg-white focus:outline-none focus:ring-2 focus:ring-[#00236f]"
-            >
-              {assets.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.code} - {a.name} ({a.location})
-                </option>
-              ))}
-            </select>
-          </div>
+          {assets.length > 0 ? (
+            <div>
+              <label className="text-xs font-bold text-[#131b2e] block mb-1">
+                เลือกทรัพย์สินที่ต้องซ่อม
+              </label>
+              <select
+                value={selectedAssetId}
+                onChange={(e) => {
+                  setSelectedAssetId(e.target.value);
+                  const a = assets.find((x) => x.id === e.target.value);
+                  if (a) setTitle(a.name);
+                }}
+                className="w-full px-3 py-2 rounded-xl border border-[#e2e7ff] text-xs text-[#131b2e] bg-white focus:outline-none focus:ring-2 focus:ring-[#00236f]"
+              >
+                {assets.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.code} - {a.name} ({a.location})
+                  </option>
+                ))}
+                <option value="custom">+ ระบุรหัสครุภัณฑ์อื่นด้วยตนเอง</option>
+              </select>
+
+              {selectedAssetId === 'custom' && (
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  <input
+                    type="text"
+                    placeholder="รหัสครุภัณฑ์ (เช่น KC-IT-2024-001)"
+                    value={customAssetCode}
+                    onChange={(e) => setCustomAssetCode(e.target.value)}
+                    className="px-3 py-2 rounded-xl border border-[#e2e7ff] text-xs text-[#131b2e]"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="ชื่อครุภัณฑ์ / อุปกรณ์"
+                    value={customAssetName}
+                    onChange={(e) => setCustomAssetName(e.target.value)}
+                    className="px-3 py-2 rounded-xl border border-[#e2e7ff] text-xs text-[#131b2e]"
+                    required
+                  />
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#131b2e] block">
+                ระบุข้อมูลครุภัณฑ์ที่แจ้งซ่อม
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <span className="text-[10px] text-[#757682] block mb-0.5">รหัสครุภัณฑ์</span>
+                  <input
+                    type="text"
+                    placeholder="เช่น KC-PRN-2024-001"
+                    value={customAssetCode}
+                    onChange={(e) => setCustomAssetCode(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-[#e2e7ff] text-xs text-[#131b2e] focus:outline-none focus:ring-2 focus:ring-[#00236f]"
+                    required
+                  />
+                </div>
+                <div>
+                  <span className="text-[10px] text-[#757682] block mb-0.5">ชื่ออุปกรณ์ / ครุภัณฑ์</span>
+                  <input
+                    type="text"
+                    placeholder="เช่น เครื่องพิมพ์เลเซอร์ Canon"
+                    value={customAssetName}
+                    onChange={(e) => setCustomAssetName(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-[#e2e7ff] text-xs text-[#131b2e] focus:outline-none focus:ring-2 focus:ring-[#00236f]"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           <div>
             <label className="text-xs font-bold text-[#131b2e] block mb-1">
