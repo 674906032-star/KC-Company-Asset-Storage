@@ -12,8 +12,9 @@ import {
   AlertCircle,
   Truck,
   Wind,
+  FileText,
 } from 'lucide-react';
-import { TabType, ApprovalRequest } from '../types';
+import { TabType, ApprovalRequest, AdminProfile } from '../types';
 
 interface OverviewViewProps {
   onNavigateTab: (tab: TabType) => void;
@@ -23,6 +24,8 @@ interface OverviewViewProps {
   urgentApproval: ApprovalRequest | null;
   onApproveUrgent: (id: string) => void;
   onViewApprovalDetail: (req: ApprovalRequest) => void;
+  adminProfile?: AdminProfile;
+  onOpenProfile?: () => void;
 }
 
 export const OverviewView: React.FC<OverviewViewProps> = ({
@@ -33,37 +36,59 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
   urgentApproval,
   onApproveUrgent,
   onViewApprovalDetail,
+  adminProfile,
+  onOpenProfile,
 }) => {
   return (
     <div className="space-y-4 pb-6">
       {/* 1. User Greeting Card */}
       <div className="bg-white rounded-2xl p-3.5 border border-[#e2e7ff] shadow-xs flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <div 
+          onClick={onOpenProfile}
+          className="flex items-center gap-3 cursor-pointer group"
+          title="คลิกเพื่อดูโปรไฟล์หรือเปลี่ยนผู้ดูแล"
+        >
           <div className="relative">
-            <img
-              src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80"
-              alt="คุณภัสสร"
-              className="w-12 h-12 rounded-full object-cover ring-2 ring-[#e2e7ff]"
-            />
+            {adminProfile?.avatarUrl ? (
+              <img
+                src={adminProfile.avatarUrl}
+                alt={adminProfile.name}
+                className="w-12 h-12 rounded-full object-cover ring-2 ring-[#e2e7ff] group-hover:ring-[#00236f] transition-all"
+              />
+            ) : (
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#00236f] to-[#1e3a8a] text-white flex items-center justify-center font-bold text-lg ring-2 ring-[#e2e7ff] group-hover:ring-[#00236f] transition-all">
+                {adminProfile?.name?.charAt(0) || 'K'}
+              </div>
+            )}
             <span className="absolute bottom-0 right-0 w-3 h-3 bg-[#16a34a] border-2 border-white rounded-full" />
           </div>
           <div>
-            <div className="flex items-center gap-1">
-              <h2 className="text-base font-bold text-[#131b2e]">
-                สวัสดีคุณภัสสร
+            <div className="flex items-center gap-1.5">
+              <h2 className="text-base font-bold text-[#131b2e] group-hover:text-[#00236f] transition-colors">
+                สวัสดี{adminProfile?.name ? `คุณ${adminProfile.name}` : 'ผู้ดูแลระบบ'}
               </h2>
               <span className="text-base">👏</span>
             </div>
-            <p className="text-xs text-[#757682] mt-0.5">
-              วันอังคารที่ 24 ต.ค. • ผู้ดูแลพัสดุอาวุโส
-            </p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="text-xs text-[#757682]">
+                ผู้ดูแล:
+              </span>
+              <span className="font-mono text-[11px] font-semibold text-[#00236f] bg-[#f2f3ff] px-1.5 py-0.2 rounded border border-[#e2e7ff]">
+                {adminProfile?.gmail || 'kc.admin@gmail.com'}
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#dcfce7] text-[#16a34a] text-xs font-semibold">
+        <button
+          type="button"
+          onClick={onOpenProfile}
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#dcfce7] hover:bg-[#bbf7d0] text-[#16a34a] text-xs font-semibold transition-colors cursor-pointer"
+          title="คลิกเพื่อเปลี่ยนผู้ดูแล"
+        >
           <span className="w-2 h-2 rounded-full bg-[#16a34a] animate-ping opacity-75" />
-          <span>ระบบพร้อม</span>
-        </div>
+          <span>ระบบ KC พร้อม</span>
+        </button>
       </div>
 
       {/* 2. Quick Action 3-Card Grid */}
@@ -115,6 +140,34 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             ทันที 24 ชม.
           </span>
         </button>
+      </div>
+
+      {/* 2.1 Standard Formats Quick Access Banner */}
+      <div
+        id="overview-standard-formats-banner"
+        onClick={() => onNavigateTab('formats')}
+        className="bg-gradient-to-r from-[#f2f3ff] via-white to-[#f0fdfa] rounded-2xl p-3 border border-[#b6c4ff] shadow-xs flex items-center justify-between cursor-pointer hover:border-[#00236f] transition-all group"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#00236f] text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-xs">
+            <FileText className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <h4 className="text-xs font-bold text-[#00236f]">
+                ฟอร์เม็ตและแบบฟอร์มมาตรฐาน
+              </h4>
+              <span className="px-1.5 py-0.2 rounded bg-[#dcfce7] text-[#16a34a] text-[9px] font-extrabold">
+                คภ.01 - 05
+              </span>
+            </div>
+            <p className="text-[11px] text-[#444651] mt-0.5">
+              แบบคำขอเบิก, สติกเกอร์ QR/Barcode แท็ก, และโครงสร้างรหัสทางการ
+            </p>
+          </div>
+        </div>
+
+        <ChevronRight className="w-4 h-4 text-[#00236f] group-hover:translate-x-1 transition-transform shrink-0" />
       </div>
 
       {/* 3. Summary Statistics Section */}

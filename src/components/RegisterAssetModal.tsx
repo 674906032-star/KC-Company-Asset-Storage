@@ -6,14 +6,24 @@ interface RegisterAssetModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddAsset: (newAsset: Asset) => void;
+  initialCode?: string;
 }
 
 export const RegisterAssetModal: React.FC<RegisterAssetModalProps> = ({
   isOpen,
   onClose,
   onAddAsset,
+  initialCode,
 }) => {
-  const [code, setCode] = useState(`KC-IT-2024-${Math.floor(1000 + Math.random() * 9000)}`);
+  const [code, setCode] = useState(
+    initialCode || `KC-IT-2024-${Math.floor(1000 + Math.random() * 9000)}`
+  );
+
+  React.useEffect(() => {
+    if (initialCode) {
+      setCode(initialCode);
+    }
+  }, [initialCode, isOpen]);
   const [name, setName] = useState('');
   const [category, setCategory] = useState<AssetCategory>('it');
   const [price, setPrice] = useState('45000');

@@ -1,12 +1,13 @@
 import React from 'react';
 import { Bell } from 'lucide-react';
-import { TabType } from '../types';
+import { TabType, AdminProfile } from '../types';
 
 interface HeaderProps {
   activeTab: TabType;
   unreadNotificationsCount?: number;
   onOpenNotifications: () => void;
   onOpenProfile: () => void;
+  adminProfile?: AdminProfile;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -14,6 +15,7 @@ export const Header: React.FC<HeaderProps> = ({
   unreadNotificationsCount = 3,
   onOpenNotifications,
   onOpenProfile,
+  adminProfile,
 }) => {
   const getSubhead = () => {
     switch (activeTab) {
@@ -25,13 +27,15 @@ export const Header: React.FC<HeaderProps> = ({
         return 'Maintenance';
       case 'approvals':
         return 'Approvals';
+      case 'formats':
+        return 'Standard Formats';
       default:
         return 'Overview';
     }
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-[#e2e7ff] px-4 py-2.5 transition-all">
+    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-[#e2e7ff] px-4 py-2.5 transition-all print:hidden">
       <div className="flex items-center justify-between">
         {/* Left: KC Logo & Title */}
         <div className="flex items-center gap-2.5">
@@ -44,8 +48,8 @@ export const Header: React.FC<HeaderProps> = ({
 
           <div className="flex flex-col text-left">
             <div className="flex items-center gap-1.5">
-              <span className="font-extrabold tracking-wider text-[11px] text-[#00236f] font-serif uppercase">
-                KC ENTERPRISE
+              <span className="font-extrabold tracking-wider text-[12px] text-[#00236f] font-serif uppercase">
+                KC
               </span>
             </div>
             <span className="font-bold text-sm text-[#131b2e] leading-tight -mt-0.5">
@@ -75,12 +79,19 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={onOpenProfile}
             className="relative rounded-full ring-2 ring-[#e2e7ff] hover:ring-[#00236f] transition-all p-0.5 focus:outline-none group"
             aria-label="โปรไฟล์ผู้ใช้งาน"
+            title={`ผู้ดูแล: ${adminProfile?.name || 'ผู้ดูแลระบบ'} (${adminProfile?.gmail || ''})`}
           >
-            <img
-              src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80"
-              alt="คุณภัสสร"
-              className="w-8 h-8 rounded-full object-cover"
-            />
+            {adminProfile?.avatarUrl ? (
+              <img
+                src={adminProfile.avatarUrl}
+                alt={adminProfile.name}
+                className="w-8 h-8 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-[#00236f] text-white flex items-center justify-center text-xs font-bold font-sans">
+                {adminProfile?.name?.charAt(0) || 'K'}
+              </div>
+            )}
             <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#16a34a] border-2 border-white rounded-full" />
           </button>
         </div>

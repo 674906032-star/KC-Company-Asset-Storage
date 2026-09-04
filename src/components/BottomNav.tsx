@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutGrid, Package, Wrench, ClipboardCheck } from 'lucide-react';
+import { LayoutGrid, Package, Wrench, ClipboardCheck, FileText } from 'lucide-react';
 import { TabType } from '../types';
 
 interface BottomNavProps {
@@ -23,14 +23,15 @@ export const BottomNav: React.FC<BottomNavProps> = ({
       icon: ClipboardCheck,
       badge: pendingApprovalsCount > 0 ? pendingApprovalsCount : undefined,
     },
+    { id: 'formats' as TabType, label: 'ฟอร์แมต', icon: FileText },
   ];
 
   return (
     <nav
       id="main-bottom-navigation"
-      className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-[#e2e7ff] pb-safe"
+      className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-[#e2e7ff] pb-safe print:hidden"
     >
-      <div className="max-w-md mx-auto grid grid-cols-4 h-16">
+      <div className="max-w-md mx-auto grid grid-cols-5 h-16">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;

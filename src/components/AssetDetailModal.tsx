@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   X,
   QrCode,
@@ -12,6 +12,9 @@ import {
   Printer,
   ShieldCheck,
   Building,
+  User,
+  Mail,
+  CheckCircle2,
 } from 'lucide-react';
 import { Asset } from '../types';
 
@@ -21,6 +24,8 @@ interface AssetDetailModalProps {
   onRequestBorrow: (asset: Asset) => void;
   onReportRepair: (asset: Asset) => void;
   onToggleStatus: (asset: Asset) => void;
+  onViewStandardTag?: (asset: Asset) => void;
+  onUpdateCustodian?: (assetId: string, newGmail: string) => void;
 }
 
 export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
@@ -29,8 +34,30 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
   onRequestBorrow,
   onReportRepair,
   onToggleStatus,
+  onViewStandardTag,
+  onUpdateCustodian,
 }) => {
+  const [isChangingCustodian, setIsChangingCustodian] = useState(false);
+  const [custodianGmail, setCustodianGmail] = useState('');
+  const [custodianSuccessMsg, setCustodianSuccessMsg] = useState('');
+
   if (!asset) return null;
+
+  const handleSaveCustodian = () => {
+    let email = custodianGmail.trim();
+    if (!email) return;
+    if (!email.includes('@')) {
+      email = `${email}@gmail.com`;
+    }
+
+    if (onUpdateCustodian) {
+      onUpdateCustodian(asset.id, email);
+      setCustodianSuccessMsg(`แต่งตั้งผู้ดูแล: ${email} สำเร็จ`);
+      setTimeout(() => setCustodianSuccessMsg(''), 3000);
+      setIsChangingCustodian(false);
+      setCustodianGmail('');
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -143,12 +170,92 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
 
           <button
             type="button"
-            onClick={() => alert(`ส่งคำสั่งพิมพ์แท็ก QR สำหรับ ${asset.code} ไปยังเครื่องพิมพ์สติกเกอร์เรียบร้อยแล้ว`)}
-            className="p-2 rounded-xl bg-white border border-[#e2e7ff] text-[#00236f] hover:bg-[#eaedff] transition-colors"
-            title="พิมพ์แท็ก"
+            onClick={() => {
+              if (onViewStandardTag) {
+                onViewStandardTag(asset);
+                onClose();
+              } else {
+                window.print();
+              }
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#e2e7ff] text-[#00236f] hover:bg-[#eaedff] transition-colors text-xs font-bold shadow-2xs"
+            title="ดูฟอร์แมตป้ายมาตรฐาน"
           >
             <Printer className="w-4 h-4" />
+            <span>พิมพ์แท็ก</span>
           </button>
+        </div>
+
+        {/* Custodian / ผู้ดูแลครุภัณฑ์ Section */}
+        <div className="mt-3 p-3 bg-white rounded-2xl border border-[#e2e7ff] space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-[#131b2e]">
+              <User className="w-3.5 h-3.5 text-[#00236f]" />
+              <span>ผู้ดูแล / ผู้ถือครองครุภัณฑ์</span>
+            </div>
+            <span className="text-[10px] px-2 py-0.5 rounded bg-[#f2f3ff] text-[#00236f] font-bold">
+              KC Asset
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between gap-2 text-xs bg-[#f8f9ff] p-2.5 rounded-xl border border-[#e2e7ff]">
+            <div className="min-w-0 flex-1">
+              <span className="text-[10px] text-[#757682] block">ผู้ดูแลปัจจุบัน:</span>
+              <span className="font-semibold text-[#131b2e] truncate block font-mono text-xs">
+                {asset.assignedUser || 'ยังไม่มีผู้ดูแล (คลังพัสดุ KC)'}
+              </span>
+            </div>
+            <button
+              type="button"
+              id="btn-toggle-change-custodian"
+              onClick={() => setIsChangingCustodian(!isChangingCustodian)}
+              className="px-2.5 py-1 text-xs rounded-lg bg-white border border-[#b6c4ff] text-[#00236f] font-bold hover:bg-[#eaedff] shrink-0 flex items-center gap-1 shadow-2xs"
+            >
+              <Mail className="w-3 h-3 text-[#ea4335]" />
+              <span>{isChangingCustodian ? 'ปิด' : 'เปลี่ยนด้วย Gmail'}</span>
+            </button>
+          </div>
+
+          {custodianSuccessMsg && (
+            <div className="p-2 rounded-xl bg-[#dcfce7] text-[#16a34a] text-xs flex items-center gap-1.5 font-bold">
+              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+              <span>{custodianSuccessMsg}</span>
+            </div>
+          )}
+
+          {isChangingCustodian && (
+            <div className="pt-1 space-y-2 animate-in fade-in duration-200">
+              <div className="relative">
+                <input
+                  type="email"
+                  value={custodianGmail}
+                  onChange={(e) => setCustodianGmail(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleSaveCustodian();
+                    }
+                  }}
+                  placeholder="ระบุ Gmail ผู้ดูแลใหม่ (เช่น user@gmail.com)"
+                  className="w-full pl-8 pr-20 py-2 text-xs rounded-xl border border-[#c5c5d3] focus:outline-none focus:ring-2 focus:ring-[#00236f] bg-white font-mono"
+                  autoFocus
+                />
+                <Mail className="w-3.5 h-3.5 text-[#757682] absolute left-2.5 top-2.5" />
+                <button
+                  type="button"
+                  id="btn-submit-custodian-gmail"
+                  onClick={handleSaveCustodian}
+                  className="absolute right-1 top-1 px-3 py-1 bg-[#00236f] text-white text-[11px] font-bold rounded-lg hover:bg-[#1e3a8a] shadow-2xs"
+                >
+                  บันทึก
+                </button>
+              </div>
+              <div className="flex items-center justify-between text-[10px] text-[#757682]">
+                <span>ใส่ชื่อผู้ใช้ระบบจะเติม @gmail.com อัตโนมัติ</span>
+                <span className="font-semibold text-[#00236f]">KC Asset Custody</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Action Buttons */}

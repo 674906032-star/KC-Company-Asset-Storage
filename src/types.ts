@@ -1,4 +1,14 @@
-export type TabType = 'overview' | 'assets' | 'maintenance' | 'approvals';
+export type TabType = 'overview' | 'assets' | 'maintenance' | 'approvals' | 'formats';
+
+export interface AdminProfile {
+  name: string;
+  gmail: string;
+  role: string;
+  tier: string;
+  empId: string;
+  department: string;
+  avatarUrl?: string;
+}
 
 export type AssetCategory = 'it' | 'vehicle' | 'tool' | 'furniture';
 

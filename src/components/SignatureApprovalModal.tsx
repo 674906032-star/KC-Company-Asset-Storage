@@ -1,19 +1,25 @@
 import React, { useState, useRef } from 'react';
 import { X, PenTool, CheckCircle, ShieldCheck, Trash2 } from 'lucide-react';
-import { ApprovalRequest } from '../types';
+import { ApprovalRequest, AdminProfile } from '../types';
 
 interface SignatureApprovalModalProps {
   request: ApprovalRequest | null;
   onClose: () => void;
   onConfirmApproval: (request: ApprovalRequest, signatureData: string) => void;
+  adminProfile?: AdminProfile;
 }
 
 export const SignatureApprovalModal: React.FC<SignatureApprovalModalProps> = ({
   request,
   onClose,
   onConfirmApproval,
+  adminProfile,
 }) => {
-  const [typedName, setTypedName] = useState('ภัสสร ศิริโชคชัย (ผู้ดูแลพัสดุอาวุโส)');
+  const [typedName, setTypedName] = useState(
+    adminProfile
+      ? `${adminProfile.name} (${adminProfile.gmail})`
+      : 'ภัสสร ศิริโชคชัย (passorn.kc@gmail.com)'
+  );
   const [hasDrawn, setHasDrawn] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const isDrawing = useRef(false);
@@ -173,7 +179,7 @@ export const SignatureApprovalModal: React.FC<SignatureApprovalModalProps> = ({
         <div className="mt-3 p-2.5 rounded-xl bg-[#dcfce7]/60 border border-[#bbf7d0] flex items-center gap-2 text-[11px] text-[#166534]">
           <ShieldCheck className="w-4 h-4 shrink-0 text-[#16a34a]" />
           <span>
-            ลงนามด้วยใบรับรองดิจิทัล KC Enterprise Audit Trail v2.4 (บันทึกเวลาและ IP)
+            ลงนามด้วยใบรับรองดิจิทัล KC Audit Trail v2.4 (บันทึกเวลาและ IP)
           </span>
         </div>
 

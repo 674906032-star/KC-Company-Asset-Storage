@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { TabType, Asset, MaintenanceTicket, PMRoutineItem, ApprovalRequest, ReturnHistoryItem } from './types';
+import {
+  TabType,
+  Asset,
+  MaintenanceTicket,
+  PMRoutineItem,
+  ApprovalRequest,
+  ReturnHistoryItem,
+  AdminProfile,
+} from './types';
 import {
   INITIAL_ASSETS,
   INITIAL_MAINTENANCE_TICKETS,
@@ -13,6 +21,7 @@ import { OverviewView } from './components/OverviewView';
 import { AssetRegistryView } from './components/AssetRegistryView';
 import { MaintenanceView } from './components/MaintenanceView';
 import { ApprovalsView } from './components/ApprovalsView';
+import { StandardFormatsView } from './components/StandardFormatsView';
 import { QRScannerModal } from './components/QRScannerModal';
 import { RegisterAssetModal } from './components/RegisterAssetModal';
 import { ReportIssueModal } from './components/ReportIssueModal';
@@ -23,8 +32,50 @@ import { NotificationModal } from './components/NotificationModal';
 import { ProfileModal } from './components/ProfileModal';
 import { Toast, ToastMessage } from './components/Toast';
 
+const DEFAULT_ADMIN: AdminProfile = {
+  name: 'ภัสสร ศิริโชคชัย',
+  gmail: 'passorn.kc@gmail.com',
+  role: 'ผู้ดูแลพัสดุอาวุโส (Senior Asset Controller)',
+  tier: 'สิทธิ์ผู้อนุมัติระดับ 2 (Approval Tier 2)',
+  empId: 'EMP-KC-0419',
+  department: 'Asset Administration (KC)',
+  avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80',
+};
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
+
+  // Admin Profile (สามารถเปลี่ยนผู้ดูแลได้โดยใส่ Gmail)
+  const [adminProfile, setAdminProfile] = useState<AdminProfile>(() => {
+    try {
+      const saved = localStorage.getItem('kc_admin_profile');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch {
+      // fallback
+    }
+    return DEFAULT_ADMIN;
+  });
+
+  const handleUpdateAdminProfile = (updated: AdminProfile) => {
+    setAdminProfile(updated);
+    try {
+      localStorage.setItem('kc_admin_profile', JSON.stringify(updated));
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleUpdateAssetCustodian = (assetId: string, newGmail: string) => {
+    setAssets((prev) =>
+      prev.map((a) => (a.id === assetId ? { ...a, assignedUser: newGmail } : a))
+    );
+    if (selectedAsset && selectedAsset.id === assetId) {
+      setSelectedAsset((prev) => (prev ? { ...prev, assignedUser: newGmail } : null));
+    }
+    addToast('success', 'เปลี่ยนผู้ดูแลครุภัณฑ์สำเร็จ', `ผู้ดูแลใหม่: ${newGmail}`);
+  };
 
   // Core collections in state
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS);
@@ -36,6 +87,7 @@ export default function App() {
   // Modals state
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [registerPrefillCode, setRegisterPrefillCode] = useState<string>('');
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [isExpressOpen, setIsExpressOpen] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
@@ -177,6 +229,7 @@ export default function App() {
           unreadNotificationsCount={3}
           onOpenNotifications={() => setIsNotificationOpen(true)}
           onOpenProfile={() => setIsProfileOpen(true)}
+          adminProfile={adminProfile}
         />
 
         {/* Screen Content Container */}
@@ -190,6 +243,8 @@ export default function App() {
               urgentApproval={urgentApproval}
               onApproveUrgent={handleApproveUrgent}
               onViewApprovalDetail={(req) => setSignatureTargetRequest(req)}
+              adminProfile={adminProfile}
+              onOpenProfile={() => setIsProfileOpen(true)}
             />
           )}
 
@@ -226,6 +281,19 @@ export default function App() {
               onCallRequester={handleCallRequester}
             />
           )}
+
+          {activeTab === 'formats' && (
+            <StandardFormatsView
+              assets={assets}
+              approvals={approvals}
+              tickets={tickets}
+              onOpenRegisterAssetWithCode={(code) => {
+                setRegisterPrefillCode(code);
+                setIsRegisterOpen(true);
+              }}
+              onShowToast={addToast}
+            />
+          )}
         </main>
 
         {/* Persistent Bottom Navigation */}
@@ -245,8 +313,12 @@ export default function App() {
 
         <RegisterAssetModal
           isOpen={isRegisterOpen}
-          onClose={() => setIsRegisterOpen(false)}
+          onClose={() => {
+            setIsRegisterOpen(false);
+            setRegisterPrefillCode('');
+          }}
           onAddAsset={handleAddAsset}
+          initialCode={registerPrefillCode}
         />
 
         <ReportIssueModal
@@ -272,6 +344,10 @@ export default function App() {
           onReportRepair={(asset) => {
             setIsReportOpen(true);
           }}
+          onViewStandardTag={(asset) => {
+            setActiveTab('formats');
+          }}
+          onUpdateCustodian={handleUpdateAssetCustodian}
           onToggleStatus={(asset) => {
             setAssets((prev) =>
               prev.map((a) =>
@@ -291,6 +367,7 @@ export default function App() {
           request={signatureTargetRequest}
           onClose={() => setSignatureTargetRequest(null)}
           onConfirmApproval={handleConfirmSignature}
+          adminProfile={adminProfile}
         />
 
         <NotificationModal
@@ -301,6 +378,9 @@ export default function App() {
         <ProfileModal
           isOpen={isProfileOpen}
           onClose={() => setIsProfileOpen(false)}
+          adminProfile={adminProfile}
+          onUpdateAdminProfile={handleUpdateAdminProfile}
+          onShowToast={addToast}
         />
       </div>
     </div>
