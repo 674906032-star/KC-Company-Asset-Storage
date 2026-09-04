@@ -14,9 +14,10 @@ import {
   Wind,
   FileText,
 } from 'lucide-react';
-import { TabType, ApprovalRequest, AdminProfile } from '../types';
+import { TabType, ApprovalRequest, AdminProfile, Asset } from '../types';
 
 interface OverviewViewProps {
+  assets?: Asset[];
   onNavigateTab: (tab: TabType) => void;
   onOpenScanner: () => void;
   onOpenExpressRequest: () => void;
@@ -29,6 +30,7 @@ interface OverviewViewProps {
 }
 
 export const OverviewView: React.FC<OverviewViewProps> = ({
+  assets = [],
   onNavigateTab,
   onOpenScanner,
   onOpenExpressRequest,
@@ -39,51 +41,42 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
   adminProfile,
   onOpenProfile,
 }) => {
+  const totalAssetsCount = assets.length;
+  const availableCount = assets.filter((a) => a.status === 'available').length;
+  const checkedOutCount = assets.filter((a) => a.status === 'checked_out').length;
+  const maintenanceCount = assets.filter((a) => a.status === 'maintenance').length;
+  const totalValuation = assets.reduce((sum, a) => sum + (a.price || 0), 0);
+  const availablePercent = totalAssetsCount > 0 ? ((availableCount / totalAssetsCount) * 100).toFixed(1) : '0';
   return (
     <div className="space-y-4 pb-6">
-      {/* 1. User Greeting Card */}
+      {/* 1. User Greeting Card (Only Name and Position, No Image) */}
       <div className="bg-white rounded-2xl p-3.5 border border-[#e2e7ff] shadow-xs flex items-center justify-between">
         <div 
           onClick={onOpenProfile}
-          className="flex items-center gap-3 cursor-pointer group"
+          className="flex flex-col cursor-pointer group"
           title="คลิกเพื่อดูโปรไฟล์หรือเปลี่ยนผู้ดูแล"
         >
-          <div className="relative">
-            {adminProfile?.avatarUrl ? (
-              <img
-                src={adminProfile.avatarUrl}
-                alt={adminProfile.name}
-                className="w-12 h-12 rounded-full object-cover ring-2 ring-[#e2e7ff] group-hover:ring-[#00236f] transition-all"
-              />
-            ) : (
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#00236f] to-[#1e3a8a] text-white flex items-center justify-center font-bold text-lg ring-2 ring-[#e2e7ff] group-hover:ring-[#00236f] transition-all">
-                {adminProfile?.name?.charAt(0) || 'K'}
-              </div>
-            )}
-            <span className="absolute bottom-0 right-0 w-3 h-3 bg-[#16a34a] border-2 border-white rounded-full" />
+          <div className="flex items-center gap-1.5">
+            <h2 className="text-base font-bold text-[#131b2e] group-hover:text-[#00236f] transition-colors">
+              สวัสดี{adminProfile?.name ? `คุณ${adminProfile.name}` : 'ผู้ดูแลระบบ'}
+            </h2>
+            <span className="text-base">👏</span>
           </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <h2 className="text-base font-bold text-[#131b2e] group-hover:text-[#00236f] transition-colors">
-                สวัสดี{adminProfile?.name ? `คุณ${adminProfile.name}` : 'ผู้ดูแลระบบ'}
-              </h2>
-              <span className="text-base">👏</span>
-            </div>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="text-xs text-[#757682]">
-                ผู้ดูแล:
-              </span>
-              <span className="font-mono text-[11px] font-semibold text-[#00236f] bg-[#f2f3ff] px-1.5 py-0.2 rounded border border-[#e2e7ff]">
-                {adminProfile?.gmail || 'kc.admin@gmail.com'}
-              </span>
-            </div>
+          <div className="flex flex-wrap items-center gap-2 mt-0.5">
+            <span className="text-xs font-medium text-[#444651]">
+              ตำแหน่ง: <span className="font-semibold text-[#00236f]">{adminProfile?.role || 'ผู้ดูแลพัสดุ'}</span>
+            </span>
+            <span className="text-xs text-[#757682]">•</span>
+            <span className="font-mono text-[11px] font-semibold text-[#00236f] bg-[#f2f3ff] px-1.5 py-0.5 rounded border border-[#e2e7ff]">
+              {adminProfile?.gmail || 'kc.admin@gmail.com'}
+            </span>
           </div>
         </div>
 
         <button
           type="button"
           onClick={onOpenProfile}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#dcfce7] hover:bg-[#bbf7d0] text-[#16a34a] text-xs font-semibold transition-colors cursor-pointer"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#dcfce7] hover:bg-[#bbf7d0] text-[#16a34a] text-xs font-semibold transition-colors cursor-pointer shrink-0 ml-2"
           title="คลิกเพื่อเปลี่ยนผู้ดูแล"
         >
           <span className="w-2 h-2 rounded-full bg-[#16a34a] animate-ping opacity-75" />
@@ -196,11 +189,11 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             </div>
             <div className="mt-1">
               <span className="text-2xl font-black tracking-tight text-[#131b2e]">
-                1,482
+                {totalAssetsCount.toLocaleString()}
               </span>
             </div>
             <p className="text-[11px] text-[#006a61] font-medium mt-0.5">
-              มูลค่า ฿42.8M
+              {totalAssetsCount === 0 ? 'รอลงทะเบียน' : `มูลค่า ฿${totalValuation >= 1000000 ? `${(totalValuation / 1000000).toFixed(1)}M` : totalValuation.toLocaleString()}`}
             </p>
           </div>
 
@@ -217,11 +210,11 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             </div>
             <div className="mt-1">
               <span className="text-2xl font-black tracking-tight text-[#131b2e]">
-                1,128
+                {availableCount.toLocaleString()}
               </span>
             </div>
             <p className="text-[11px] text-[#16a34a] font-medium mt-0.5">
-              76.1% ของคลัง
+              {totalAssetsCount > 0 ? `${availablePercent}% ของคลัง` : '0%'}
             </p>
           </div>
 
@@ -238,12 +231,11 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             </div>
             <div className="mt-1">
               <span className="text-2xl font-black tracking-tight text-[#131b2e]">
-                312
+                {checkedOutCount.toLocaleString()}
               </span>
             </div>
-            <div className="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-[#fee2e2] text-[#dc2626] text-[10px] font-semibold">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#dc2626]" />
-              เกินกำหนด 4 รายการ
+            <div className="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-[#f2f3ff] text-[#565e74] text-[10px] font-semibold">
+              <span>{checkedOutCount > 0 ? `เบิกอยู่ ${checkedOutCount} รายการ` : 'ไม่มีค้างเบิก'}</span>
             </div>
           </div>
 
@@ -260,11 +252,11 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             </div>
             <div className="mt-1">
               <span className="text-2xl font-black tracking-tight text-[#131b2e]">
-                42
+                {maintenanceCount.toLocaleString()}
               </span>
             </div>
             <p className="text-[11px] text-[#757682] mt-0.5">
-              อยู่ในคิวช่าง 8 ชิ้น
+              {maintenanceCount > 0 ? `อยู่ในคิว ${maintenanceCount} ชิ้น` : 'ไม่มีส่งซ่อม'}
             </p>
           </div>
         </div>

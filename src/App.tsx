@@ -67,18 +67,35 @@ export default function App() {
     }
   };
 
+  // Core collections in state
+  const [assets, setAssets] = useState<Asset[]>(() => {
+    try {
+      localStorage.removeItem('kc_assets'); // Clear old mock assets
+      const saved = localStorage.getItem('kc_assets_v2');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch {
+      // fallback
+    }
+    return INITIAL_ASSETS; // Default empty array []
+  });
+
   const handleUpdateAssetCustodian = (assetId: string, newGmail: string) => {
-    setAssets((prev) =>
-      prev.map((a) => (a.id === assetId ? { ...a, assignedUser: newGmail } : a))
-    );
+    setAssets((prev) => {
+      const updated = prev.map((a) => (a.id === assetId ? { ...a, assignedUser: newGmail } : a));
+      try {
+        localStorage.setItem('kc_assets_v2', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
     if (selectedAsset && selectedAsset.id === assetId) {
       setSelectedAsset((prev) => (prev ? { ...prev, assignedUser: newGmail } : null));
     }
     addToast('success', 'เปลี่ยนผู้ดูแลครุภัณฑ์สำเร็จ', `ผู้ดูแลใหม่: ${newGmail}`);
   };
-
-  // Core collections in state
-  const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS);
   const [tickets, setTickets] = useState<MaintenanceTicket[]>(INITIAL_MAINTENANCE_TICKETS);
   const [pmRoutines, setPmRoutines] = useState<PMRoutineItem[]>(INITIAL_PM_ROUTINES);
   const [approvals, setApprovals] = useState<ApprovalRequest[]>(INITIAL_APPROVALS);
@@ -194,7 +211,15 @@ export default function App() {
 
   // Add new asset
   const handleAddAsset = (newAsset: Asset) => {
-    setAssets((prev) => [newAsset, ...prev]);
+    setAssets((prev) => {
+      const updated = [newAsset, ...prev];
+      try {
+        localStorage.setItem('kc_assets_v2', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
     addToast('success', 'ลงทะเบียนครุภัณฑ์สำเร็จ', `รหัส ${newAsset.code} ถูกเพิ่มเข้าระบบ Asset Registry`);
   };
 
@@ -236,6 +261,7 @@ export default function App() {
         <main className="flex-1 p-4 overflow-y-auto">
           {activeTab === 'overview' && (
             <OverviewView
+              assets={assets}
               onNavigateTab={(tab) => setActiveTab(tab)}
               onOpenScanner={() => setIsScannerOpen(true)}
               onOpenExpressRequest={() => setIsExpressOpen(true)}

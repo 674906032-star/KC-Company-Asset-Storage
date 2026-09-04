@@ -100,50 +100,42 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
           </button>
         </div>
 
-        {/* Current Active Profile Card */}
-        <div className="flex items-center gap-3.5 mt-4 p-3.5 bg-[#f2f3ff] rounded-2xl border border-[#e2e7ff] relative overflow-hidden">
-          <div className="relative shrink-0">
-            {adminProfile.avatarUrl ? (
-              <img
-                src={adminProfile.avatarUrl}
-                alt={adminProfile.name}
-                className="w-16 h-16 rounded-2xl object-cover ring-2 ring-white shadow-xs"
-              />
-            ) : (
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#00236f] to-[#1e3a8a] text-white flex items-center justify-center font-bold text-xl ring-2 ring-white shadow-xs">
-                {adminProfile.name.charAt(0)}
-              </div>
-            )}
-            <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#16a34a] border-2 border-white rounded-full" />
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center justify-between gap-1">
-              <h4 className="text-base font-bold text-[#131b2e] truncate">
+        {/* Current Active Profile Card (No image, only name and position) */}
+        <div className="mt-4 p-4 bg-[#f2f3ff] rounded-2xl border border-[#e2e7ff] relative overflow-hidden">
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#757682] block">
+                ผู้ดูแลระบบปัจจุบัน (Active Admin)
+              </span>
+              <h4 className="text-lg font-bold text-[#131b2e] mt-0.5">
                 {adminProfile.name}
               </h4>
-              <button
-                type="button"
-                onClick={() => {
-                  setGmailInput(adminProfile.gmail || '');
-                  setNameInput(adminProfile.name || '');
-                  setIsEditing(!isEditing);
-                }}
-                className="px-2 py-1 rounded-lg bg-white border border-[#b6c4ff] text-[#00236f] text-xs font-semibold hover:bg-[#eaedff] flex items-center gap-1 shadow-2xs shrink-0"
-              >
-                <Edit3 className="w-3 h-3" />
-                <span>{isEditing ? 'ยกเลิก' : 'เปลี่ยนผู้ดูแล'}</span>
-              </button>
+              <p className="text-xs font-semibold text-[#00236f] mt-0.5">
+                ตำแหน่ง: {adminProfile.role}
+              </p>
             </div>
-            <p className="text-xs font-semibold text-[#00236f] truncate mt-0.5">
-              {adminProfile.role}
-            </p>
-            <div className="flex items-center gap-1.5 mt-1">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#dcfce7] text-[#16a34a] text-[10px] font-bold">
-                <CheckCircle2 className="w-3 h-3" />
-                <span>{adminProfile.tier}</span>
-              </span>
-            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setGmailInput(adminProfile.gmail || '');
+                setNameInput(adminProfile.name || '');
+                setIsEditing(!isEditing);
+              }}
+              className="px-2.5 py-1.5 rounded-lg bg-white border border-[#b6c4ff] text-[#00236f] text-xs font-semibold hover:bg-[#eaedff] flex items-center gap-1.5 shadow-2xs shrink-0"
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              <span>{isEditing ? 'ยกเลิก' : 'เปลี่ยนผู้ดูแล'}</span>
+            </button>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 mt-3 pt-2.5 border-t border-[#e2e7ff]/70">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#dcfce7] text-[#16a34a] text-[11px] font-bold">
+              <CheckCircle2 className="w-3 h-3" />
+              <span>{adminProfile.tier}</span>
+            </span>
+            <span className="font-mono text-xs font-semibold text-[#00236f] bg-white px-2 py-0.5 rounded border border-[#e2e7ff]">
+              {adminProfile.gmail}
+            </span>
           </div>
         </div>
 

@@ -179,7 +179,7 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
               }
             }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#e2e7ff] text-[#00236f] hover:bg-[#eaedff] transition-colors text-xs font-bold shadow-2xs"
-            title="ดูฟอร์แมตป้ายมาตรฐาน"
+            title="ดู Format ป้ายมาตรฐาน"
           >
             <Printer className="w-4 h-4" />
             <span>พิมพ์แท็ก</span>

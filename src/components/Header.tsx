@@ -77,22 +77,16 @@ export const Header: React.FC<HeaderProps> = ({
             type="button"
             id="header-profile-btn"
             onClick={onOpenProfile}
-            className="relative rounded-full ring-2 ring-[#e2e7ff] hover:ring-[#00236f] transition-all p-0.5 focus:outline-none group"
+            className="flex flex-col text-right px-2.5 py-1 rounded-xl bg-[#f2f3ff] hover:bg-[#e2e7ff] border border-[#d8def8] transition-all max-w-[140px]"
             aria-label="โปรไฟล์ผู้ใช้งาน"
-            title={`ผู้ดูแล: ${adminProfile?.name || 'ผู้ดูแลระบบ'} (${adminProfile?.gmail || ''})`}
+            title={`ผู้ดูแล: ${adminProfile?.name || 'ผู้ดูแลระบบ'} (${adminProfile?.role || 'ผู้ดูแลพัสดุ'})`}
           >
-            {adminProfile?.avatarUrl ? (
-              <img
-                src={adminProfile.avatarUrl}
-                alt={adminProfile.name}
-                className="w-8 h-8 rounded-full object-cover"
-              />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-[#00236f] text-white flex items-center justify-center text-xs font-bold font-sans">
-                {adminProfile?.name?.charAt(0) || 'K'}
-              </div>
-            )}
-            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#16a34a] border-2 border-white rounded-full" />
+            <span className="text-[11px] font-bold text-[#131b2e] leading-tight truncate">
+              {adminProfile?.name || 'ผู้ดูแลระบบ'}
+            </span>
+            <span className="text-[9px] text-[#565e74] leading-tight truncate">
+              {adminProfile?.role || 'ผู้ดูแลพัสดุ'}
+            </span>
           </button>
         </div>
       </div>

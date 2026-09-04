@@ -148,7 +148,7 @@ Serial Number: ${currentAsset.serialNumber || 'N/A'}
 
     navigator.clipboard.writeText(textToCopy);
     setCopiedState(true);
-    onShowToast('success', 'คัดลอกข้อความฟอร์แมตแล้ว', 'นำไปใช้อ้างอิงในเอกสารราชการหรืออีเมลได้ทันที');
+    onShowToast('success', 'คัดลอกข้อความ Format แล้ว', 'นำไปใช้อ้างอิงในเอกสารราชการหรืออีเมลได้ทันที');
     setTimeout(() => setCopiedState(false), 2000);
   };
 
@@ -644,7 +644,7 @@ Serial Number: ${currentAsset.serialNumber || 'N/A'}
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold text-[#131b2e] flex items-center gap-1.5">
                 <Tag className="w-3.5 h-3.5 text-[#00236f]" />
-                กำหนดขนาดและฟอร์แมตป้ายสติกเกอร์:
+                กำหนดขนาดและ Format ป้ายสติกเกอร์:
               </h3>
               <span className="text-[11px] text-[#006a61] font-semibold">
                 ขนาดมาตรฐานราชการ & กกท.
@@ -878,9 +878,9 @@ Serial Number: ${currentAsset.serialNumber || 'N/A'}
                 </button>
               </div>
 
-              {/* Grid of 6 representative sample stickers for A4 */}
+              {/* Grid of representative sample stickers for A4 */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {assets.slice(0, 6).map((item) => (
+                {(assets.length > 0 ? assets.slice(0, 6) : [currentAsset]).map((item) => (
                   <div
                     key={item.id}
                     className="p-2 border border-slate-300 rounded-lg bg-white text-left text-xs relative"

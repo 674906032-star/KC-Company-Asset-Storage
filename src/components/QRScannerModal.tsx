@@ -125,21 +125,27 @@ export const QRScannerModal: React.FC<QRScannerModalProps> = ({
           <span className="text-[10px] text-white/60">คลิก 1 รายการ</span>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-          {assets.slice(0, 5).map((asset) => (
-            <button
-              key={asset.id}
-              type="button"
-              onClick={() => handleSimulateScan(asset)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/15 hover:bg-[#00236f] text-xs font-mono whitespace-nowrap transition-all border border-white/20"
-            >
-              <span className="text-[#86f2e4]">{asset.code}</span>
-              <span className="text-white/80 text-[11px] font-sans truncate max-w-[90px]">
-                {asset.name}
-              </span>
-            </button>
-          ))}
-        </div>
+        {assets.length > 0 ? (
+          <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+            {assets.slice(0, 5).map((asset) => (
+              <button
+                key={asset.id}
+                type="button"
+                onClick={() => handleSimulateScan(asset)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/15 hover:bg-[#00236f] text-xs font-mono whitespace-nowrap transition-all border border-white/20"
+              >
+                <span className="text-[#86f2e4]">{asset.code}</span>
+                <span className="text-white/80 text-[11px] font-sans truncate max-w-[90px]">
+                  {asset.name}
+                </span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <p className="text-xs text-white/70 py-1 text-center">
+            ยังไม่มีครุภัณฑ์ในระบบ — ท่านสามารถลงทะเบียนครุภัณฑ์ชิ้นใหม่ได้ทันที
+          </p>
+        )}
       </div>
     </div>
   );

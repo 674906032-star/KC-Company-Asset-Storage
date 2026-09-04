@@ -18,6 +18,7 @@ import {
   Plus,
   Tag,
   Warehouse,
+  Package,
 } from 'lucide-react';
 import { Asset, AssetCategory } from '../types';
 
@@ -92,6 +93,12 @@ export const AssetRegistryView: React.FC<AssetRegistryViewProps> = ({
     }
   };
 
+  // Dynamic KPI counts
+  const totalCount = assets.length;
+  const availableCount = assets.filter((a) => a.status === 'available').length;
+  const inUseOrMaintCount = assets.filter((a) => a.status === 'maintenance' || a.status === 'checked_out').length;
+  const completionPercent = totalCount > 0 ? Math.round((availableCount / totalCount) * 100) : 0;
+
   return (
     <div className="space-y-3.5 pb-28 relative">
       {/* 1. Search Bar with QR Button */}
@@ -128,10 +135,10 @@ export const AssetRegistryView: React.FC<AssetRegistryViewProps> = ({
             <span className="font-medium text-[11px]">ในระบบ</span>
           </div>
           <div className="mt-1">
-            <span className="text-xl font-black text-[#131b2e]">1,248</span>
+            <span className="text-xl font-black text-[#131b2e]">{totalCount.toLocaleString()}</span>
           </div>
           <p className="text-[10px] text-[#757682] mt-0.5 truncate">
-            ชิ้นส่วนทั้งหมด
+            {totalCount === 0 ? 'รอลงทะเบียน' : 'ชิ้นส่วนทั้งหมด'}
           </p>
         </div>
 
@@ -142,24 +149,24 @@ export const AssetRegistryView: React.FC<AssetRegistryViewProps> = ({
             <span className="font-medium text-[11px]">พร้อมใช้</span>
           </div>
           <div className="mt-1">
-            <span className="text-xl font-black text-[#006a61]">1,092</span>
+            <span className="text-xl font-black text-[#006a61]">{availableCount.toLocaleString()}</span>
           </div>
           <p className="text-[10px] text-[#16a34a] font-medium mt-0.5 truncate">
-            87.5% สมบูรณ์
+            {totalCount > 0 ? `${completionPercent}% พร้อมใช้งาน` : '0%'}
           </p>
         </div>
 
-        {/* Stat 3: ซ่อม/ตรวจ */}
+        {/* Stat 3: เบิก/ซ่อม */}
         <div className="bg-white p-2.5 rounded-2xl border border-[#e2e7ff] shadow-xs">
           <div className="flex items-center gap-1.5 text-xs text-[#444651]">
-            <Wrench className="w-3.5 h-3.5 text-[#dc2626]" />
-            <span className="font-medium text-[11px]">ซ่อม/ตรวจ</span>
+            <Wrench className="w-3.5 h-3.5 text-[#ea580c]" />
+            <span className="font-medium text-[11px]">เบิก/ซ่อม</span>
           </div>
           <div className="mt-1">
-            <span className="text-xl font-black text-[#dc2626]">24</span>
+            <span className="text-xl font-black text-[#ea580c]">{inUseOrMaintCount.toLocaleString()}</span>
           </div>
-          <p className="text-[10px] text-[#dc2626] font-medium mt-0.5 truncate">
-            ค้างตรวจสภาพ
+          <p className="text-[10px] text-[#ea580c] font-medium mt-0.5 truncate">
+            {inUseOrMaintCount > 0 ? 'กำลังถูกใช้งาน' : 'ไม่มีค้าง'}
           </p>
         </div>
       </div>
@@ -344,8 +351,32 @@ export const AssetRegistryView: React.FC<AssetRegistryViewProps> = ({
         ))}
 
         {sortedAssets.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-[#c5c5d3]">
-            <p className="text-xs text-[#757682]">ไม่พบข้อมูลครุภัณฑ์ที่ค้นหา</p>
+          <div className="text-center py-12 px-4 bg-white rounded-2xl border border-dashed border-[#b6c4ff] space-y-3">
+            <div className="w-14 h-14 mx-auto rounded-full bg-[#f2f3ff] text-[#00236f] flex items-center justify-center">
+              <Package className="w-7 h-7" />
+            </div>
+            {assets.length === 0 ? (
+              <div className="space-y-1.5 max-w-xs mx-auto">
+                <h4 className="text-sm font-bold text-[#131b2e]">
+                  พร้อมลงทะเบียนครุภัณฑ์ชุดใหม่
+                </h4>
+                <p className="text-xs text-[#565e74] leading-relaxed">
+                  ลบคุรุภัณฑ์เดิมทั้งหมดออกเรียบร้อยแล้ว กดปุ่มด้านล่างเพื่อเริ่มลงทะเบียนครุภัณฑ์ชิ้นใหม่ได้ทันที
+                </p>
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={onOpenRegisterAsset}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#00236f] text-white text-xs font-bold hover:bg-[#1e3a8a] shadow-xs active:scale-95 transition-all"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>ลงทะเบียนครุภัณฑ์ใหม่</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-[#757682]">ไม่พบข้อมูลครุภัณฑ์ที่ค้นหา</p>
+            )}
           </div>
         )}
       </div>

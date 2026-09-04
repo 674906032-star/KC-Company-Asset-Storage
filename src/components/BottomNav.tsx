@@ -23,7 +23,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
       icon: ClipboardCheck,
       badge: pendingApprovalsCount > 0 ? pendingApprovalsCount : undefined,
     },
-    { id: 'formats' as TabType, label: 'ฟอร์แมต', icon: FileText },
+    { id: 'formats' as TabType, label: 'Format', icon: FileText },
   ];
 
   return (
