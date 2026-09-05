@@ -30,6 +30,7 @@ import { AssetDetailModal } from './components/AssetDetailModal';
 import { SignatureApprovalModal } from './components/SignatureApprovalModal';
 import { NotificationModal } from './components/NotificationModal';
 import { ProfileModal } from './components/ProfileModal';
+import { EditTicketModal } from './components/EditTicketModal';
 import { Toast, ToastMessage } from './components/Toast';
 
 const DEFAULT_ADMIN: AdminProfile = {
@@ -134,6 +135,7 @@ export default function App() {
   const [signatureTargetRequest, setSignatureTargetRequest] = useState<ApprovalRequest | null>(null);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [editingTicket, setEditingTicket] = useState<MaintenanceTicket | null>(null);
 
   // Toast notifications
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
@@ -284,6 +286,35 @@ export default function App() {
     addToast('success', 'เปิดใบแจ้งซ่อมสำเร็จ', `ตั๋วเลขที่ ${newTicket.code} เข้าสู่คิวซ่อมบำรุงแล้ว`);
   };
 
+  // Update existing ticket
+  const handleUpdateTicket = (updatedTicket: MaintenanceTicket) => {
+    setTickets((prev) => {
+      const updated = prev.map((t) => (t.id === updatedTicket.id ? updatedTicket : t));
+      try {
+        localStorage.setItem('kc_tickets_v2', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+    addToast('success', 'บันทึกการแก้ไขแล้ว', `ใบแจ้งซ่อม ${updatedTicket.code} อัปเดตข้อมูลเรียบร้อย`);
+  };
+
+  // Delete ticket
+  const handleDeleteTicket = (ticketId: string) => {
+    setTickets((prev) => {
+      const target = prev.find((t) => t.id === ticketId);
+      const updated = prev.filter((t) => t.id !== ticketId);
+      try {
+        localStorage.setItem('kc_tickets_v2', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      addToast('info', 'ลบใบแจ้งซ่อมสำเร็จ', target ? `ลบรายการ ${target.code} ออกจากระบบแล้ว` : 'รายการซ่อมถูกลบออกจากระบบ');
+      return updated;
+    });
+  };
+
   // Add new express approval
   const handleAddApproval = (newReq: ApprovalRequest) => {
     setApprovals((prev) => {
@@ -352,9 +383,9 @@ export default function App() {
               tickets={tickets}
               pmRoutines={pmRoutines}
               onOpenCreateTicket={() => setIsReportOpen(true)}
-              onSelectTicket={(ticket) => {
-                addToast('info', `รายละเอียดใบแจ้งซ่อม ${ticket.code}`, ticket.title);
-              }}
+              onSelectTicket={(ticket) => setEditingTicket(ticket)}
+              onEditTicket={(ticket) => setEditingTicket(ticket)}
+              onDeleteTicket={handleDeleteTicket}
               onInspectPM={handleInspectPM}
               onAcceptWork={handleAcceptWork}
               onCallContractor={handleCallContractor}
@@ -416,6 +447,14 @@ export default function App() {
           onClose={() => setIsReportOpen(false)}
           assets={assets}
           onAddTicket={handleAddTicket}
+        />
+
+        <EditTicketModal
+          isOpen={!!editingTicket}
+          onClose={() => setEditingTicket(null)}
+          ticket={editingTicket}
+          onUpdateTicket={handleUpdateTicket}
+          onDeleteTicket={handleDeleteTicket}
         />
 
         <ExpressRequestModal

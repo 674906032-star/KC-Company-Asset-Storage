@@ -15,6 +15,8 @@ import {
   Clock,
   Building2,
   User,
+  Pencil,
+  Trash2,
 } from 'lucide-react';
 import { MaintenanceTicket, PMRoutineItem } from '../types';
 
@@ -23,6 +25,8 @@ interface MaintenanceViewProps {
   pmRoutines: PMRoutineItem[];
   onOpenCreateTicket: () => void;
   onSelectTicket: (ticket: MaintenanceTicket) => void;
+  onEditTicket: (ticket: MaintenanceTicket) => void;
+  onDeleteTicket: (ticketId: string) => void;
   onInspectPM: (pm: PMRoutineItem) => void;
   onAcceptWork: (ticketId: string) => void;
   onCallContractor: (ticket: MaintenanceTicket) => void;
@@ -33,6 +37,8 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
   pmRoutines,
   onOpenCreateTicket,
   onSelectTicket,
+  onEditTicket,
+  onDeleteTicket,
   onInspectPM,
   onAcceptWork,
   onCallContractor,
@@ -40,6 +46,7 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
   const [activeSegment, setActiveSegment] = useState<'pm' | 'tickets'>('pm');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'latest' | 'cost'>('latest');
+  const [deletingTicketId, setDeletingTicketId] = useState<string | null>(null);
 
   const inProgressCount = tickets.filter(
     (t) => t.status === 'in_progress' || t.type === 'corrective'
@@ -308,13 +315,13 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
             onClick={() => onSelectTicket(ticket)}
             className="bg-white rounded-2xl p-3.5 border border-[#e2e7ff] shadow-xs hover:border-[#00236f] cursor-pointer transition-all"
           >
-            {/* Header: Ticket Code, Badge & Date */}
+            {/* Header: Ticket Code, Badge, Edit/Delete & Date */}
             <div className="flex items-center justify-between gap-1 mb-2">
-              <span className="font-mono text-xs font-extrabold text-[#00236f]">
-                {ticket.code}
-              </span>
-
               <div className="flex items-center gap-2">
+                <span className="font-mono text-xs font-extrabold text-[#00236f]">
+                  {ticket.code}
+                </span>
+
                 {ticket.type === 'corrective' && (
                   <span className="px-2 py-0.5 rounded-full bg-[#fee2e2] text-[#dc2626] text-[10px] font-bold">
                     • {ticket.typeLabel}
@@ -330,9 +337,67 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
                     • {ticket.typeLabel}
                   </span>
                 )}
-                <span className="text-[11px] text-[#757682]">{ticket.timeAgo}</span>
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] text-[#757682] hidden sm:inline">{ticket.timeAgo}</span>
+                <button
+                  type="button"
+                  title="แก้ไขใบแจ้งซ่อม"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEditTicket(ticket);
+                  }}
+                  className="p-1 rounded-lg text-[#00236f] hover:bg-[#eaedff] active:scale-95 transition-all"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  title="ลบใบแจ้งซ่อม"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDeletingTicketId(ticket.id);
+                  }}
+                  className="p-1 rounded-lg text-[#dc2626] hover:bg-[#fee2e2] active:scale-95 transition-all"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
+
+            {/* Inline deletion confirmation if active */}
+            {deletingTicketId === ticket.id && (
+              <div
+                className="mb-2.5 p-2.5 rounded-xl bg-[#fee2e2] border border-[#fecaca] flex items-center justify-between gap-2"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center gap-1.5 text-xs text-[#991b1b] font-medium min-w-0">
+                  <AlertTriangle className="w-4 h-4 text-[#dc2626] shrink-0" />
+                  <span className="truncate">ยืนยันลบใบแจ้งซ่อม {ticket.code}?</span>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setDeletingTicketId(null)}
+                    className="px-2.5 py-1 rounded-lg bg-white text-[#444651] text-[11px] font-semibold hover:bg-slate-50 border border-[#fecaca]"
+                  >
+                    ยกเลิก
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onDeleteTicket(ticket.id);
+                      setDeletingTicketId(null);
+                    }}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#dc2626] text-white text-[11px] font-bold hover:bg-[#b91c1c] shadow-xs active:scale-95 transition-all"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    <span>ลบ</span>
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Thumbnail and Info */}
             <div className="flex gap-3">
@@ -423,7 +488,20 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
               </div>
 
               {/* Action Buttons based on status */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                <button
+                  type="button"
+                  id={`edit-btn-${ticket.code}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEditTicket(ticket);
+                  }}
+                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#eaedff] text-[#00236f] text-xs font-semibold hover:bg-[#dbe1ff] transition-all"
+                >
+                  <Pencil className="w-3 h-3" />
+                  <span>แก้ไข</span>
+                </button>
+
                 {ticket.type === 'corrective' && (
                   <>
                     <button
@@ -432,7 +510,7 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
                         e.stopPropagation();
                         onSelectTicket(ticket);
                       }}
-                      className="px-3 py-1.5 rounded-xl bg-[#f2f3ff] text-[#00236f] text-xs font-semibold hover:bg-[#eaedff] transition-all"
+                      className="px-2.5 py-1.5 rounded-xl bg-[#f2f3ff] text-[#00236f] text-xs font-semibold hover:bg-[#eaedff] transition-all"
                     >
                       ดูรายละเอียด
                     </button>
@@ -457,10 +535,23 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
                       e.stopPropagation();
                       onAcceptWork(ticket.id);
                     }}
-                    className="flex items-center gap-1 px-4 py-2 rounded-xl bg-[#006a61] text-white text-xs font-bold hover:bg-[#005049] active:scale-95 transition-all shadow-xs"
+                    className="flex items-center gap-1 px-3.5 py-1.5 rounded-xl bg-[#006a61] text-white text-xs font-bold hover:bg-[#005049] active:scale-95 transition-all shadow-xs"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>ตรวจรับงาน</span>
+                  </button>
+                )}
+
+                {ticket.type === 'scheduled' && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectTicket(ticket);
+                    }}
+                    className="px-2.5 py-1.5 rounded-xl bg-[#f2f3ff] text-[#444651] text-xs font-semibold hover:bg-[#eaedff] transition-all"
+                  >
+                    ดูรายละเอียด
                   </button>
                 )}
               </div>
